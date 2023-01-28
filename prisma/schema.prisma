@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider     = "mysql"
+  relationMode = "prisma"
+  url          = env("DATABASE_URL")
+}
+
+model Province {
+  id      String  @id
+  name    String
+  lists   List[]
+  website String
+}
+
+model Party {
+  id       String  @id
+  name     String
+  lists    List[]
+  fullName String?
+  website  String?
+  twitter  String?
+}
+
+model List {
+  id         String      @id @default(nanoid())
+  name       String
+  provinceId String
+  province   Province    @relation(fields: [provinceId], references: [id])
+  partyId    String?
+  party      Party?      @relation(fields: [partyId], references: [id])
+  candidates Candidate[]
+  fullName   String?
+  website    String?
+  twitter    String?
+
+  @@index([provinceId])
+  @@index([partyId])
+}
+
+model Candidate {
+  id           String   @id @default(nanoid())
+  name         String
+  listId       String
+  list         List     @relation(fields: [listId], references: [id])
+  position     Int
+  gender       Gender?
+  municipality String?
+  age          Int?
+  website      String?
+  twitter      String?
+  incumbent    Boolean?
+  elected      Boolean?
+
+  @@unique([listId, position])
+  @@index([listId])
+  @@fulltext([name])
+}
+
+enum Gender {
+  WOMAN
+  MAN
+  OTHER
+}
