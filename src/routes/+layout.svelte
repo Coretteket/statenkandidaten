@@ -6,6 +6,9 @@
 	import { Help, Share } from '~/components/icons';
 	import '../app.css';
 
+  import { inject } from '@vercel/analytics';
+  inject();
+
 	// export let data: import('./$types').LayoutData;
 
 	// prevent weird scroll behavior on back/forward navigation
