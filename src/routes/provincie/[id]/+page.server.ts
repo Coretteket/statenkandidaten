@@ -15,8 +15,8 @@ const getCounts = async (provinceId: string) => {
 
 const getCandidates = async (provinceId: string) => {
 	return await prisma.candidate.findMany({
-    where: { list: { provinceId } },
-    include: { list: true },
+		where: { list: { provinceId } },
+		include: { list: true },
 	});
 };
 

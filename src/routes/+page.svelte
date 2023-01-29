@@ -11,8 +11,7 @@
 	let selectedProvince: string;
 	$: provinceURL = selectedProvince ? `/provincie/${selectedProvince}` : undefined;
 
-
-  // Only disabled when JS is enabled, and no province has been selected.
+	// Only disabled when JS is enabled, and no province has been selected.
 	onMount(() => document.querySelector('#provButton')!.setAttribute('disabled', 'true'));
 </script>
 

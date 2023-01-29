@@ -50,7 +50,7 @@
 				{candidate.list.name}
 				{candidate.age}
 				{candidate.gender}
-        {candidate.municipality}
+				{candidate.municipality}
 			</p>
 		{/each}
 	</Card>
