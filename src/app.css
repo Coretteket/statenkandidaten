@@ -1,8 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
 	:root {
 		--base-font: 'Inter';
+		@apply scroll-p-8 overflow-x-hidden scroll-smooth bg-gray-100;
+	}
+
+	* {
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	.no-js {
+		display: none;
 	}
 }
