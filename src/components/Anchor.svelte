@@ -7,7 +7,7 @@
 
 	const getDomain = (url: string) => new URL(url).hostname.split('.').slice(-2).join('.');
 
-	const Icon = type === 'back' ? Back : Arrow;
+	$: icon = type === 'back' ? Back : Arrow;
 </script>
 
 <a
@@ -17,7 +17,7 @@
 	{...$$restProps}
 	{href}
 >
-	<Icon class="h-5 w-5" />
+	<svelte:component this={icon} class="h-5 w-5" />
 	<slot>
 		{#if type === 'back'}
 			Terug naar overzicht
