@@ -1,9 +1,8 @@
 import { prisma } from '~/scripts/db.server';
 
-export const load: import('./$types').PageServerLoad = async () => {
-	const provinces = prisma.province.findMany({
-		include: { lists: { include: { candidates: true } } },
-	});
+export const prerender = true;
 
-  return { provinces };
+export const load: import('./$types').PageServerLoad = async () => {
+	const provinces = prisma.province.findMany({ orderBy: { name: 'asc' } });
+	return { provinces };
 };
