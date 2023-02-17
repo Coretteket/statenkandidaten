@@ -3,7 +3,6 @@
 	import Anchor from '~/components/Anchor.svelte';
 	import Button from '~/components/Button.svelte';
 	import Card from '~/components/Card.svelte';
-	import Arrow from '~/components/icons/Arrow.svelte';
 	import Map from '~/components/Map.svelte';
 
 	export let data: import('./$types').PageServerData;
@@ -20,10 +19,10 @@
 		Doorzoek alle kandidaten voor de Provinciale Staten
 	</h1>
 	<p class="my-2 text-lg text-gray-800">
-		Op <b class="font-semibold">15 maart 2023</b> mogen we weer stemmen, maar op wie eigenlijk? Wij
-		hebben alle kandidaten voor de Provinciale Staten in jouw provincie verzameld<span
-			class="hidden sm:inline"
-			>, zodat je ze kan doorzoeken op partij, woonplaats, leeftijd, en geslacht</span
+		Op <b class="font-semibold">15 maart 2023</b>
+		mogen we weer stemmen, maar op wie eigenlijk? Wij hebben alle kandidaten voor de Provinciale Staten
+		in jouw provincie verzameld<span class="max-sm:hidden"
+			>, zodat je ze makkelijk kan doorzoeken op partij, woonplaats, geslacht en meer</span
 		>. Zo vind jij de kandidaat die het beste bij jou past!
 	</p>
 	<div class="mt-3 flex flex-wrap gap-4">
@@ -40,7 +39,8 @@
 			hieronder, of
 			<b class="font-medium text-gray-900">
 				klik op jouw provincie op de kaart
-				<span class="hidden md:inline">hiernaast</span><span class="md:hidden">hieronder</span>.
+				<span class="hidden md:inline">hiernaast.</span>
+				<span class="md:hidden">hieronder.</span>
 			</b>
 		</p>
 
@@ -52,7 +52,7 @@
 				bind:value={selectedProvince}
 				class="form-select mt-1 w-full cursor-pointer rounded-md border-gray-300 py-3 px-4 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
 			>
-				<option selected disabled hidden value="">Selecteer een provincie...</option>
+				<option selected hidden value="">Selecteer een provincie...</option>
 				{#each data.provinces as province}
 					<option value={province.id}>{province.name}</option>
 				{/each}
@@ -74,13 +74,20 @@
 		<div class="flex flex-col gap-3">
 			<b class="text-lg font-medium">Waarom zou ik stemmen?</b>
 			<p>
-				In het nieuws gaat het meestal over de landelijke politiek, maar ook in de provincie worden
-				besluiten genomen die invloed hebben op jouw dagelijks leven. Jouw stem op de Provinciale
-				Staten bepaalt namelijk hoe we onze ruimte verdelen, hoe we omgaan met milieu en energie,
-				hoe we zorgen voor natuur en water, hoe makkelijk we rond kunnen reizen én hoe we de
-				economie in de regio het beste aanjagen.
+				In de provincie worden besluiten genomen die invloed hebben op jouw dagelijks leven. Jouw
+				stem op de Provinciale Staten bepaalt namelijk hoe we onze ruimte verdelen, hoe we omgaan
+				met milieu en energie, hoe we zorgen voor natuur en water, hoe makkelijk we rond kunnen
+				reizen én hoe we de economie in de regio het beste aanjagen.
 			</p>
-			<Anchor href="https://www.rijksoverheid.nl/onderwerpen/provincies/taken-provincie" />
+			<Anchor
+				href="https://nos.nl/video/2462437-ps23-een-spoedcursus-over-provinciale-staten-in-4-minuten"
+			>
+				Bekijk explainer op NOS.nl
+			</Anchor>
+
+			<Anchor
+				href="https://www.rijksoverheid.nl/onderwerpen/verkiezingen/vraag-en-antwoord/provinciale-statenverkiezingen"
+			/>
 		</div>
 		<div class="flex flex-col gap-3">
 			<b class="text-lg font-medium">Hoe kan ik stemmen?</b>
@@ -93,7 +100,7 @@
 
 			<Anchor href="https://waarismijnstemlokaal.nl/">Vind een stembureau in de buurt</Anchor>
 			<Anchor
-				href="https://www.rijksoverheid.nl/onderwerpen/verkiezingen/vraag-en-antwoord/hoe-stemmen-bij-gemeenteraadsverkiezingen"
+				href="https://www.rijksoverheid.nl/onderwerpen/verkiezingen/vraag-en-antwoord/hoe-stemmen-bij-de-verkiezingen"
 			/>
 		</div>
 	</div>

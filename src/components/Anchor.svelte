@@ -1,28 +1,24 @@
 <script lang="ts">
-	import { Arrow, Back } from './icons';
+	import Arrow from '~icons/mdi/arrow-top-right';
 
 	export let href: string;
 	export let newtab = true;
-	export let type: 'back' | 'external' = 'external';
+	export let icon = 'h-5 w-5';
+	export { style as class };
+	let style = '';
 
 	const getDomain = (url: string) => new URL(url).hostname.split('.').slice(-2).join('.');
-
-	$: icon = type === 'back' ? Back : Arrow;
 </script>
 
 <a
-	class="flex items-center gap-2 font-medium text-indigo-600 hover:underline"
+	class="flex items-start gap-2 font-medium text-indigo-600 hover:underline {style}"
 	target={newtab ? '_blank' : null}
 	rel={newtab ? 'noreferrer noopener' : null}
 	{...$$restProps}
 	{href}
 >
-	<svelte:component this={icon} class="h-5 w-5" />
+	<Arrow class="{icon} mt-[3px] inline" />
 	<slot>
-		{#if type === 'back'}
-			Terug naar overzicht
-		{:else}
-			Lees meer op {getDomain(href)}
-		{/if}
+		Lees meer op {getDomain(href)}
 	</slot>
 </a>

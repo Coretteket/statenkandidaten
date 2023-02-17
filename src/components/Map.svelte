@@ -1,16 +1,16 @@
 <div data-sveltekit-preload-code="off">
 	<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 346.5 446.8" {...$$props}>
-		<a href="/provincie/friesland">
-			<title>Friesland</title>
+		<a href="/provincie/fryslan">
+			<title>Fryslân</title>
 			<polygon
-				id="Friesland_1"
+				id="Fryslân_1"
 				class="st0 c2"
 				points="190.4,113.2 183.6,106.3 183.6,80.2 177.3,74 182.5,68.8 182.5,51.5 200.6,33.5
 	208.8,33.5 221.6,20.7 257.6,20.7 257.6,38.6 252.4,43.8 252.4,61.8 261.7,61.8 281.9,82.1 281.9,88.4 274.7,95.6 262.5,95.6
 	244.9,113.2 214.4,113.2 "
 			/>
 			<path
-				id="Friesland_2"
+				id="Fryslân_2"
 				class="st1 c2"
 				d="M130.9,56.4l17.3-17.3l-3.5-3.5l-20.8,20.8L130.9,56.4z M152.8,37.1l4.1-4.1h3.4L171.3,22h4.3
 	l6-6h-14.2l-17.8,17.8L152.8,37.1z M189.6,13.6v5h8.4l3.4-3.4h14.3l6-6h-27.5L189.6,13.6z M253.8,5.6l5.6-5.6h-15.7l-5.6,5.6
@@ -182,7 +182,7 @@
 
 	@media (hover: hover) and (pointer: fine) {
 		a:hover > * {
-			@apply fill-indigo-700;
+			@apply fill-indigo-800;
 		}
 	}
 </style>

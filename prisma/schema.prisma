@@ -2,8 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -13,60 +12,84 @@ datasource db {
 }
 
 model Province {
-  id      String @id
-  name    String
-  lists   List[]
-  website String
-  seats   Int
+  id             String         @id
+  name           String
+  constituencies Constituency[]
+  website        String
+  seats          Int
+}
+
+model Constituency {
+  id             String         @id
+  name           String
+  provinceId     String
+  province       Province       @relation(fields: [provinceId], references: [id])
+  lists          List[]
+  municipalities Municipality[]
+
+  @@index([provinceId])
+}
+
+model Municipality {
+  id             String       @id
+  name           String
+  constituencyId String
+  constituency   Constituency @relation(fields: [constituencyId], references: [id])
+  alias          String?
+
+  @@index([constituencyId])
 }
 
 model Party {
-  id      String  @id
-  name    String
+  id      String  @id @default(nanoid(6))
+  name    String  @unique
+  alias   String?
   lists   List[]
   website String?
-  twitter String?
 }
 
 model List {
-  id         String      @id @default(nanoid(9))
-  name       String
-  listNo     Int?
-  provinceId String
-  province   Province    @relation(fields: [provinceId], references: [id])
-  partyId    String?
-  party      Party?      @relation(fields: [partyId], references: [id])
-  candidates Candidate[]
-  fullName   String?
-  website    String?
-  twitter    String?
+  id             String             @id @default(nanoid(6))
+  name           String
+  position       Int
+  constituencyId String
+  constituency   Constituency       @relation(fields: [constituencyId], references: [id])
+  party          Party[]
+  website        String?
+  candidates     CandidatesOnList[]
 
-  // @@unique([provinceId, listNo])
-  @@index([provinceId])
-  @@index([partyId])
+  @@unique([constituencyId, position])
+  @@index([constituencyId])
 }
 
 model Candidate {
-  id           String   @id @default(nanoid(9))
-  name         String
-  listId       String
-  list         List     @relation(fields: [listId], references: [id])
-  position     Int
-  gender       Gender?
-  municipality String?
-  age          Int?
-  website      String?
-  twitter      String?
-  incumbent    Boolean?
-  elected      Boolean?
+  id        String             @id
+  initials  String
+  firstname String?
+  prefix    String?
+  surname   String
+  gender    Gender?
+  locality  String
+  incumbent Boolean?
+  elected   Boolean?
+  lists     CandidatesOnList[]
 
-  @@unique([listId, position])
+  @@unique([initials, surname, locality])
+}
+
+model CandidatesOnList {
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  listId      String
+  list        List      @relation(fields: [listId], references: [id], onDelete: Cascade)
+  position    Int
+
+  @@unique([candidateId, listId, position])
   @@index([listId])
-  @@fulltext([name])
 }
 
 enum Gender {
-  WOMAN
-  MAN
+  MALE
+  FEMALE
   OTHER
 }
