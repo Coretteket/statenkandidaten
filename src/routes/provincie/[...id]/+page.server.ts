@@ -1,5 +1,5 @@
 import { dev } from '$app/environment';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { prisma } from '~/scripts/db.server';
 import { get } from '@vercel/edge-config';
 import { arrayUniqueByKey, omit } from '~/scripts/utils';
@@ -60,13 +60,16 @@ const getMunicipalities = async () => {
 	).sort((a, b) => getName(a).localeCompare(getName(b), 'nl'));
 };
 
-export const load: import('./$types').PageServerLoad = async ({ params, setHeaders }) => {
+export const load: import('./$types').PageServerLoad = async ({ params, setHeaders, url }) => {
+	const provinceParam = url.searchParams.get('provincie');
+	if (provinceParam) throw redirect(307, `/provincie/${provinceParam}`);
+
 	const province = await prisma.province.findUnique({
 		include: { constituencies: { include: { lists: { include: { party: true } } } } },
 		where: { id: params.id },
 	});
 
-	if (!province) throw fail(404, { province: null });
+	if (!province) throw redirect(307, '/404');
 
 	const cache = !dev ? await get('cache-control') : undefined;
 	if (cache) setHeaders({ 'cache-control': cache });
