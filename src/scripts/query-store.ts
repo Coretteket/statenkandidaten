@@ -59,34 +59,34 @@ export const createQueryStore =
 		const store = writable(defaults);
 
 		const buildSearch = (params: QueryData<T>) => {
-			const newURL = new URL(url.href);
-			const search = new URLSearchParams();
+      const search = new URLSearchParams();
 
-			Object.entries(params).forEach(([k, v]) => {
-				if (!v) return;
-				if (typeof v === 'object') {
-					const values = Object.entries(v).filter(([_, v]) => v);
-					values.forEach(([v]) => search.append(k, v));
-				} else if (typeof v === 'string' && v.length > 0 && input[k].value !== v) {
-					search.append(k, v);
-				} else if (typeof v === 'number' && v > 0 && input[k].value !== v) {
-					search.append(k, v.toString());
+			for (const key in params) {
+				const val = params[key];
+				if (typeof val === 'object') {
+					const values = Object.entries(val).filter(([_, v]) => v);
+					values.forEach(([v]) => search.append(key, v));
+				} else if (
+					((typeof val === 'string' && val.length > 0) || (typeof val === 'number' && val > 0)) &&
+					input[key].value !== val
+				) {
+					search.append(key, val.toString());
 				}
-			});
+			}
 
+      const newURL = new URL(url.href);
 			newURL.search = search.toString();
 
-			return goto(newURL, { replaceState: true, keepFocus: true, noScroll: true });
+      return goto(newURL, { replaceState: true, keepFocus: true, noScroll: true });
 		};
 
-		const set = async (value: QueryData<T>) => {
-			await buildSearch(value);
+		const set = (value: QueryData<T>) => {
+			buildSearch(value);
 			store.set(value);
 		};
 
 		const update = (updater: (value: QueryData<T>) => Partial<QueryData<T>>) => {
-			const val = get(store);
-			store.set({ ...val, ...updater(val) });
+			store.update((val) => ({ ...val, ...updater(val)}));
 			return buildSearch(get(store));
 		};
 

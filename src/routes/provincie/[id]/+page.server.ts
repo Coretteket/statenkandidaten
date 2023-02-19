@@ -60,10 +60,7 @@ const getMunicipalities = async () => {
 	).sort((a, b) => getName(a).localeCompare(getName(b), 'nl'));
 };
 
-export const load: import('./$types').PageServerLoad = async ({ params, setHeaders, url }) => {
-	const provinceParam = url.searchParams.get('provincie');
-	if (provinceParam) throw redirect(307, `/provincie/${provinceParam}`);
-
+export const load: import('./$types').PageServerLoad = async ({ params, setHeaders }) => {
 	const province = await prisma.province.findUnique({
 		include: { constituencies: { include: { lists: { include: { party: true } } } } },
 		where: { id: params.id },
