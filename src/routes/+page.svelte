@@ -3,6 +3,7 @@
 	import Anchor from '~/components/Anchor.svelte';
 	import Button from '~/components/Button.svelte';
 	import Card from '~/components/Card.svelte';
+	import Arrow from '~icons/mdi/arrow-right';
 	import Map from '~/components/Map.svelte';
 
 	export let data: import('./$types').PageServerData;
@@ -20,14 +21,14 @@
 	</h1>
 	<p class="my-2 text-lg text-gray-800">
 		Op <b class="font-semibold">15 maart 2023</b>
-		mogen we weer stemmen, maar op wie eigenlijk? Wij hebben alle kandidaten voor de Provinciale Staten
-		in jouw provincie verzameld<span class="max-sm:hidden"
-			>, zodat je ze makkelijk kan doorzoeken op partij, woonplaats, geslacht en meer</span
+		mogen we weer stemmen, maar op wie eigenlijk? Op deze site staan alle kandidaten voor de Provinciale
+		Staten verzameld<span class="max-sm:hidden"
+			>, zodat je ze makkelijk kan doorzoeken op partij, woonplaats, geslacht, en meer</span
 		>. Zo vind jij de kandidaat die het beste bij jou past!
 	</p>
-	<div class="mt-3 flex flex-wrap gap-4">
+	<div class="mt-2 flex flex-wrap gap-4">
 		<Button href="/#provincies">Zoek in mijn provincie</Button>
-		<Button href="/#provincies" type={3}>Bekijk alle kandidaten</Button>
+		<Button href="/#veelgestelde-vragen" type={3}>Meer informatie</Button>
 	</div>
 </Card>
 
@@ -46,7 +47,7 @@
 
 		<hr class="my-2" />
 
-		<form method="GET" action="/provincie">
+		<form method="post" action="/provincie?/navigate">
 			<select
 				name="provincie"
 				bind:value={selectedProvince}
@@ -68,40 +69,44 @@
 	</Card>
 </div>
 
-<Card>
-	<h2 class="text-2xl font-semibold text-gray-900">Over de verkiezingen</h2>
+<Card id="veelgestelde-vragen">
+	<h2 class="text-2xl font-semibold text-gray-900">Veelgestelde vragen</h2>
+
 	<div class="my-4 grid gap-12 text-gray-800 md:grid-cols-2">
 		<div class="flex flex-col gap-3">
-			<b class="text-lg font-medium">Waarom zou ik stemmen?</b>
+			<b class="text-lg font-medium">Waarom moet ik stemmen?</b>
 			<p>
 				In de provincie worden besluiten genomen die invloed hebben op jouw dagelijks leven. Jouw
-				stem op de Provinciale Staten bepaalt namelijk hoe we onze ruimte verdelen, hoe we omgaan
-				met milieu en energie, hoe we zorgen voor natuur en water, hoe makkelijk we rond kunnen
-				reizen én hoe we de economie in de regio het beste aanjagen.
+				stem op de Provinciale Staten bepaalt namelijk hoe we onze ruimte verdelen, hoe we zorgen
+				voor natuur en water, hoe makkelijk we rond kunnen reizen én hoe we de economie in de regio
+				kunnen verbeteren.
 			</p>
-			<Anchor
-				href="https://nos.nl/video/2462437-ps23-een-spoedcursus-over-provinciale-staten-in-4-minuten"
-			>
-				Bekijk explainer op NOS.nl
-			</Anchor>
 
-			<Anchor
-				href="https://www.rijksoverheid.nl/onderwerpen/verkiezingen/vraag-en-antwoord/provinciale-statenverkiezingen"
-			/>
+			<div class="space-y-2">
+				<Anchor
+					href="https://nos.nl/video/2462437-ps23-een-spoedcursus-over-provinciale-staten-in-4-minuten"
+				>
+					Bekijk explainer op NOS.nl
+				</Anchor>
+				<!-- <Anchor href="https://waarismijnstemlokaal.nl/">Vind een stembureau in de buurt</Anchor> -->
+				<Anchor
+					href="https://www.rijksoverheid.nl/onderwerpen/verkiezingen/vraag-en-antwoord/provinciale-statenverkiezingen"
+				/>
+			</div>
 		</div>
 		<div class="flex flex-col gap-3">
-			<b class="text-lg font-medium">Hoe kan ik stemmen?</b>
+			<b class="text-lg font-medium">Hoe zijn de kandidaten verzameld?</b>
 			<p>
-				Je krijgt een stempas op de post. Neem deze en een geldig identiteitsbewijs op 15 maart mee
-				naar een stembureau. Daar krijg je een stembiljet en een rood potlood. Ga naar een
-				stemhokje, kleur het rondje in voor de persoon op wie jij wilt stemmen, vouw het stembiljet
-				op zodat niemand kan zien wie jij kiest en doe het stembiljet in de stembus.
+				Elke partij heeft op meestal op hun eigen website de namen van hun kandidaten gepubliceerd,
+				maar als je op zoek ben naar iemand die bij jou past, moet je zelf veel speuren. Daarom zijn
+				ze hier allemaal verzameld, op basis van informatie die partijen hebben gegeven aan de
+				Kiesraad. Deze website is onafhankelijk ontwikkeld door een enthousiaste student.
 			</p>
 
-			<Anchor href="https://waarismijnstemlokaal.nl/">Vind een stembureau in de buurt</Anchor>
 			<Anchor
-				href="https://www.rijksoverheid.nl/onderwerpen/verkiezingen/vraag-en-antwoord/hoe-stemmen-bij-de-verkiezingen"
+				href="https://www.kiesraad.nl/actueel/nieuws/2023/02/14/kandidatenlijsten-provinciale-statenverkiezingen-definitief"
 			/>
 		</div>
 	</div>
+	<Button type={3} href="/veelgestelde-vragen">Meer vragen?</Button>
 </Card>

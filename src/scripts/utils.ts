@@ -46,8 +46,13 @@ export const debounce = <T extends Function>(cb: T, wait = 200) => {
 	return <T>(<any>callable);
 };
 
+export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const arrayUniqueByKey = <T extends {}>(arr: T[], key: keyof T) =>
 	arr.filter((v) => v).filter((v, i, a) => a.findIndex((t) => t[key] === v[key]) === i);
+
+export const arrayUnique = <T>(arr: T[]) =>
+	arr.filter((v) => v).filter((v, i, a) => a.indexOf(v) === i);
 
 export const createTitle = (val?: string) => {
 	const initial = 'Statenkandidaten';

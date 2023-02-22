@@ -11,7 +11,7 @@
 </script>
 
 <a
-	class="flex items-start gap-2 font-medium text-indigo-600 hover:underline {style}"
+	class="flex w-fit items-start gap-2 font-medium text-indigo-600 hover:underline {style}"
 	target={newtab ? '_blank' : null}
 	rel={newtab ? 'noreferrer noopener' : null}
 	{...$$restProps}

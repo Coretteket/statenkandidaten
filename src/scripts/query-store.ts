@@ -59,7 +59,7 @@ export const createQueryStore =
 		const store = writable(defaults);
 
 		const buildSearch = (params: QueryData<T>) => {
-      const search = new URLSearchParams();
+			const search = new URLSearchParams();
 
 			for (const key in params) {
 				const val = params[key];
@@ -74,10 +74,10 @@ export const createQueryStore =
 				}
 			}
 
-      const newURL = new URL(url.href);
+			const newURL = new URL(url.href);
 			newURL.search = search.toString();
 
-      return goto(newURL, { replaceState: true, keepFocus: true, noScroll: true });
+			return goto(newURL, { replaceState: true, keepFocus: true, noScroll: true });
 		};
 
 		const set = (value: QueryData<T>) => {
@@ -86,7 +86,7 @@ export const createQueryStore =
 		};
 
 		const update = (updater: (value: QueryData<T>) => Partial<QueryData<T>>) => {
-			store.update((val) => ({ ...val, ...updater(val)}));
+			store.update((val) => ({ ...val, ...updater(val) }));
 			return buildSearch(get(store));
 		};
 

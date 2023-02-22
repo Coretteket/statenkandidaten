@@ -1,21 +1,8 @@
 import { dev } from '$app/environment';
-import { fail, redirect } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import { prisma } from '~/scripts/db.server';
 import { get } from '@vercel/edge-config';
 import { arrayUniqueByKey, omit } from '~/scripts/utils';
-
-const getCounts = async (provinceId: string) => {
-	const candidatesPromise = prisma.candidate.count({
-		where: { lists: { some: { list: { constituency: { provinceId } } } } },
-	});
-
-	const listsPromise = prisma.list.findMany({
-		where: { constituency: { provinceId } },
-	});
-
-	const [candidates, lists] = await Promise.all([candidatesPromise, listsPromise]);
-	return { candidates, lists: arrayUniqueByKey(lists, 'name').length };
-};
 
 const getCandidates = (provinceId: string) => {
 	return prisma.candidate
@@ -24,11 +11,12 @@ const getCandidates = (provinceId: string) => {
 			include: { lists: { include: { list: { select: { id: true } } } } },
 			orderBy: [{ surname: 'asc' }],
 		})
-		.then((c) => {
-			const candidates = c.map((b) => omit(b, 'incumbent', 'elected'));
+		.then((candidates) => {
 			return candidates.map((c) => {
+				const { initials, firstname, prefix, surname, elected, incumbent, lists: _, ...rest } = c;
 				const lists = c.lists.map((l) => ({ id: l.list.id, position: l.position }));
-				return { ...c, lists };
+				const fullname = [firstname ?? initials, prefix, surname].filter(Boolean).join(' ');
+				return { ...rest, lists, fullname };
 			});
 		});
 };
@@ -51,13 +39,13 @@ const getParties = (provinceId: string) => {
 	});
 };
 
-const getMunicipalities = async () => {
+const getMunicipalities = async (provinceId: string) => {
 	const getName = (m: { name: string }) => m.name.replace("'s-", '');
-	return (
-		await prisma.municipality.findMany({
-			include: { constituency: true },
-		})
-	).sort((a, b) => getName(a).localeCompare(getName(b), 'nl'));
+	const municipalities = await prisma.municipality.findMany({
+		where: { constituency: { provinceId } },
+		include: { constituency: true },
+	});
+	return municipalities.sort((a, b) => getName(a).localeCompare(getName(b), 'nl'));
 };
 
 export const load: import('./$types').PageServerLoad = async ({ params, setHeaders }) => {
@@ -68,19 +56,20 @@ export const load: import('./$types').PageServerLoad = async ({ params, setHeade
 
 	if (!province) throw redirect(307, '/404');
 
-	const cache = !dev ? await get('cache-control') : undefined;
-	if (cache) setHeaders({ 'cache-control': cache });
+	setHeaders({ 'cache-control': !dev ? (await get('cache-control')) ?? 'public' : 'public' });
 
 	return {
 		province,
 		parties: getParties(params.id),
 		candidates: getCandidates(params.id),
-		counts: getCounts(params.id),
-		municipalities: getMunicipalities(),
+		municipalities: getMunicipalities(params.id),
 		lastUpdate: new Date(),
 	};
 };
 
-// export const config = {
-// 	isr: { expiration: 24 * 60 * 60 },
-// };
+export const actions = {
+	navigate: async ({ request }) => {
+		const provinceParam = (await request.formData()).get('provincie');
+		throw provinceParam ? redirect(302, `/provincie/${provinceParam}`) : error(404, 'Not found');
+	},
+} satisfies import('./$types').Actions;

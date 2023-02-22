@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { dev } from '$app/environment';
 
@@ -11,9 +10,6 @@
 	import Help from '~icons/mdi/help-circle-outline';
 
 	if (!dev) import('@vercel/analytics').then((e) => e.inject());
-
-	// prevent weird scroll behavior on back/forward navigation
-	afterNavigate((nav) => nav.type == 'popstate' && window.scrollTo(0, 0));
 </script>
 
 <svelte:head>
@@ -25,8 +21,7 @@
 		class="relative mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-6 xs:py-8 sm:px-6"
 	>
 		<div class="flex flex-shrink-0 items-center gap-4">
-			<a href="/" class="h-10 w-10 flex-shrink-0 text-indigo-50">
-				<span class="sr-only">Statenkandidaten</span>
+			<a href="/" class="h-10 w-10 flex-shrink-0 text-indigo-50" aria-hidden="true">
 				<Logo />
 			</a>
 

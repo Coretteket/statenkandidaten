@@ -12,6 +12,10 @@
 		-webkit-tap-highlight-color: transparent;
 	}
 
+	body {
+		@apply !outline-none;
+	}
+
 	.no-js {
 		display: none !important;
 	}

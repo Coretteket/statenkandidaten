@@ -17,6 +17,7 @@
 	import Tag from '~/components/Tag.svelte';
 	import type { Gender } from '@prisma/client';
 	import { createFilter } from '~/scripts/stores';
+	import type { Snapshot } from './$types';
 
 	const filters = createFilter($page.url);
 
@@ -121,12 +122,12 @@
 				In {data.province.name} worden er deze verkiezingen
 				<span class="font-medium">{data.province.seats} zetels</span>
 				verdeeld. Hieronder vind je de
-				<span class="font-medium">{data.counts.candidates} mensen</span>
+				<span class="font-medium">{data.candidates.length} mensen</span>
 				waaruit je kan kiezen, verdeeld over
-				<span class="font-medium">{data.counts.lists} partijen</span>.
+				<span class="font-medium">{data.parties.length} partijen</span>.
 			</p>
 
-			<Anchor href={data.province.website} type="external" class="text-lg" icon="w-5.5 h-5.5" />
+			<!-- <Anchor href={data.province.website} class="text-lg" icon="w-5.5 h-5.5" /> -->
 		</Card>
 
 		<Card class="!flex-row flex-wrap lg:hidden">
@@ -140,26 +141,25 @@
 
 		<Card class="gap-4 lg:-mb-6 lg:min-h-[48rem]" id="candidates">
 			{#each candidates as candidate (candidate.id)}
-				<a href="/kandidaat/{candidate.id}" class="relative block">
-					<div class="mb-2 text-xl">
+				{@const href = `/kandidaat/${candidate.id}`}
+
+				<div class="space-y-2">
+					<a {href} class="text-xl">
 						<span class="mr-1 text-gray-800">{nf.format(candidate.lists[0].position)}.</span>
-						<span class="font-semibold">
-							{candidate.firstname ?? candidate.initials}
-							{candidate.prefix ?? ''}
-							{candidate.surname}
-						</span>
-					</div>
+						<span class="font-semibold">{candidate.fullname}</span>
+					</a>
+
 					<div class="relative h-8 overflow-fade-right">
 						<div class="absolute inset-0 flex gap-2 overflow-x-scroll pr-3 scrollbar-hidden">
-							<Tag icon={PartyIcon} content={getListName(candidate)} />
-							<Tag icon={City} content={candidate.locality} />
+							<Tag icon={PartyIcon} content={getListName(candidate)} {href} />
+							<Tag icon={City} content={candidate.locality} {href} />
 							{#if candidate.gender}
 								{@const GenderIcon = candidate.gender === 'FEMALE' ? FaceWoman : FaceMan}
-								<Tag icon={GenderIcon} content={getGender(candidate.gender)} />
+								<Tag icon={GenderIcon} content={getGender(candidate.gender)} {href} />
 							{/if}
 						</div>
 					</div>
-				</a>
+				</div>
 				<hr class="my-1 border-gray-200 last-of-type:hidden" />
 			{/each}
 		</Card>
