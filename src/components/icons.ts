@@ -1,0 +1,12 @@
+export { default as Arrow } from '~icons/mdi/arrow-top-right';
+export { default as Alert } from '~icons/mdi/alert-octagon-outline';
+export { default as City } from '~icons/mdi/home-city-outline';
+export { default as Party } from '~icons/mdi/account-multiple-outline';
+export { default as Sort } from '~icons/mdi/sort';
+export { default as Filter } from '~icons/mdi/filter';
+export { default as Close } from '~icons/mdi/close';
+export { default as CloseCircle } from '~icons/mdi/close-circle-outline';
+export { default as FaceMan } from '~icons/mdi/face-man';
+export { default as FaceWoman } from '~icons/mdi/face-woman';
+export { default as Share } from '~icons/mdi/share-variant';
+export { default as Help } from '~icons/mdi/help-circle-outline';

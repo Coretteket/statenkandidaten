@@ -10,8 +10,4 @@ declare global {
 		// interface PageData {}
 		// interface Platform {}
 	}
-
-	interface Window {
-		readonly navigation: Navigation | undefined;
-	}
 }

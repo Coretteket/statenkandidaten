@@ -1,20 +1,17 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { dev } from '$app/environment';
+	import Logo from '~/components/Logo.svelte';
+	import { Share, Help } from '~/components/icons';
 
 	import '@fontsource/inter/variable.css';
 	import '../app.css';
 
-	import Logo from '~/components/Logo.svelte';
-	import Share from '~icons/mdi/share-variant';
-	import Help from '~icons/mdi/help-circle-outline';
+	import { page } from '$app/stores';
+	import { dev } from '$app/environment';
 
 	if (!dev) import('@vercel/analytics').then((e) => e.inject());
-</script>
 
-<svelte:head>
-	<title>Statenkandidaten</title>
-</svelte:head>
+	$: pageTitle = $page.data.title ?? 'Statenkandidaten';
+</script>
 
 <header class="h-64 w-full bg-gradient-to-tr from-indigo-700 via-indigo-500 to-indigo-400">
 	<nav
@@ -34,14 +31,6 @@
 		</div>
 
 		<div class="flex flex-shrink-0 items-center gap-4">
-			<!-- {#if data.session?.user}
-				<a
-					href="/admin"
-					class="flex h-10 cursor-pointer appearance-none items-center rounded-lg bg-indigo-50 bg-opacity-20 px-4 font-semibold text-indigo-50 transition tap:bg-indigo-100 tap:bg-opacity-30"
-				>
-					Admin
-				</a>
-			{/if} -->
 			<a
 				href="/"
 				class="flex h-10 w-10 cursor-pointer appearance-none items-center justify-center gap-3 rounded-lg bg-indigo-50 bg-opacity-20 font-medium text-indigo-50 transition tap:bg-indigo-100 tap:bg-opacity-30"
@@ -54,7 +43,7 @@
 					if (navigator.share)
 						navigator.share({
 							title: 'Statenkandidaten',
-							text: 'Statekandidaten',
+							text: 'Statenkandidaten',
 							url: $page.url.toString(),
 						});
 					else navigator.clipboard.writeText($page.url.toString());
@@ -71,3 +60,17 @@
 <main class="mx-auto -mt-52 grid max-w-5xl gap-6 py-10 pb-14 xs:-mt-48 xs:px-4 sm:px-6">
 	<slot />
 </main>
+
+<svelte:head>
+	<title>{pageTitle}</title>
+	<noscript>
+		<style>
+			.js-only {
+				display: none !important;
+			}
+			.no-js {
+				display: inherit !important;
+			}
+		</style>
+	</noscript>
+</svelte:head>

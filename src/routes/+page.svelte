@@ -3,7 +3,6 @@
 	import Anchor from '~/components/Anchor.svelte';
 	import Button from '~/components/Button.svelte';
 	import Card from '~/components/Card.svelte';
-	import Arrow from '~icons/mdi/arrow-right';
 	import Map from '~/components/Map.svelte';
 
 	export let data: import('./$types').PageServerData;
@@ -12,7 +11,8 @@
 	$: provinceURL = selectedProvince ? `/provincie/${selectedProvince}` : undefined;
 
 	// Only disabled when JS is enabled, and no province has been selected.
-	onMount(() => document.querySelector('#provButton')!.setAttribute('disabled', 'true'));
+	let disabled = false;
+	onMount(() => (disabled = true));
 </script>
 
 <Card class="py-12 sm:!py-16">
@@ -58,9 +58,7 @@
 					<option value={province.id}>{province.name}</option>
 				{/each}
 			</select>
-			<Button class="mt-4 mb-2" href={provinceURL} id="provButton" type={2}>
-				Ga naar provincie
-			</Button>
+			<Button class="mt-4 mb-2" href={provinceURL} {disabled} type={2}>Ga naar provincie</Button>
 		</form>
 	</Card>
 

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Fuse from 'fuse.js';
-	import type { InputByType } from '~/scripts/query-store';
-	import type { FilterStore, FilterOptions } from '~/scripts/stores';
-	import { arrayUniqueByKey } from '~/scripts/utils';
+	import type { InputByType } from '~/lib/search-store';
+	import type { FilterStore, FilterOptions } from '~/lib/stores';
+	import { arrayUniqueByKey } from '~/lib/utils';
 
 	export let name: InputByType<FilterOptions, 'list'>;
 	export let options: { id: string; name: string; alias?: string | null }[];

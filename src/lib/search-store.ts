@@ -1,17 +1,18 @@
 import { goto } from '$app/navigation';
-import { get, writable, type Writable } from 'svelte/store';
-import type { FilterOptions } from './stores';
+import { get, writable } from 'svelte/store'; // @ts-ignore
+
+const constructOption =
+	<V>(type: V) =>
+	<K>() =>
+	<T extends K | undefined = undefined>(value?: T) => ({
+		value: value as T extends K ? K : K | undefined,
+		type,
+	});
 
 const queryOptions = {
-	string: <T extends string | undefined = undefined>(value?: T) =>
-		({ value: value as T extends string ? string : string | undefined, type: 'string' } as const),
-	number: <T extends number | undefined = undefined>(value?: T) =>
-		({ value: value as T extends number ? number : number | undefined, type: 'number' } as const),
-	list: <T extends string[] | undefined = undefined>(value?: T) =>
-		({
-			value: value as T extends string[] ? string[] : string[] | undefined,
-			type: 'list',
-		} as const),
+	string: constructOption('string' as const)<string>(),
+	number: constructOption('number' as const)<number>(),
+	list: constructOption('list' as const)<string[]>(),
 };
 
 export const q = queryOptions;
@@ -31,8 +32,6 @@ type QueryData<T extends Input> = Prettify<{
 export type InputByType<T extends Input, Q extends keyof typeof queryOptions> = {
 	[K in keyof T]: T[K]['type'] extends Q ? K : never;
 }[keyof T];
-
-type X = InputByType<FilterOptions, 'list'>;
 
 export const createQueryStore =
 	<T extends Input>(input: T) =>

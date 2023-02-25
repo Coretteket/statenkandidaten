@@ -1,24 +1,24 @@
+import type { PageServerLoad, Actions } from './$types';
 import { dev } from '$app/environment';
-import { error, fail, redirect } from '@sveltejs/kit';
-import { prisma } from '~/scripts/db.server';
+import { error, redirect } from '@sveltejs/kit';
+import { prisma } from '~/lib/db.server';
 import { get } from '@vercel/edge-config';
-import { arrayUniqueByKey, omit } from '~/scripts/utils';
+import { getFullName } from '~/lib/candidate';
+import { createTitle } from '~/lib/utils';
 
-const getCandidates = (provinceId: string) => {
-	return prisma.candidate
-		.findMany({
-			where: { lists: { some: { list: { constituency: { provinceId } } } } },
-			include: { lists: { include: { list: { select: { id: true } } } } },
-			orderBy: [{ surname: 'asc' }],
-		})
-		.then((candidates) => {
-			return candidates.map((c) => {
-				const { initials, firstname, prefix, surname, elected, incumbent, lists: _, ...rest } = c;
-				const lists = c.lists.map((l) => ({ id: l.list.id, position: l.position }));
-				const fullname = [firstname ?? initials, prefix, surname].filter(Boolean).join(' ');
-				return { ...rest, lists, fullname };
-			});
-		});
+const getCandidates = async (provinceId: string) => {
+	const candidates = await prisma.candidate.findMany({
+		where: { lists: { some: { list: { constituency: { provinceId } } } } },
+		include: { lists: { include: { list: { select: { id: true } } } } },
+		orderBy: [{ surname: 'asc' }],
+	});
+
+	return candidates.map((c) => {
+		const { initials, firstname, prefix, surname, elected, incumbent, lists: _, ...rest } = c;
+		const lists = c.lists.map((l) => ({ id: l.list.id, position: l.position }));
+		const fullname = getFullName(c);
+		return { ...rest, lists, fullname };
+	});
 };
 
 const getParties = (provinceId: string) => {
@@ -48,7 +48,7 @@ const getMunicipalities = async (provinceId: string) => {
 	return municipalities.sort((a, b) => getName(a).localeCompare(getName(b), 'nl'));
 };
 
-export const load: import('./$types').PageServerLoad = async ({ params, setHeaders }) => {
+export const load: PageServerLoad = async ({ params, setHeaders }) => {
 	const province = await prisma.province.findUnique({
 		include: { constituencies: { include: { lists: { include: { party: true } } } } },
 		where: { id: params.id },
@@ -56,20 +56,22 @@ export const load: import('./$types').PageServerLoad = async ({ params, setHeade
 
 	if (!province) throw redirect(307, '/404');
 
-	setHeaders({ 'cache-control': !dev ? (await get('cache-control')) ?? 'public' : 'public' });
+	const cache = !dev ? await get('cache-control') : undefined;
+	if (cache) setHeaders({ 'cache-control': cache });
 
 	return {
 		province,
 		parties: getParties(params.id),
 		candidates: getCandidates(params.id),
 		municipalities: getMunicipalities(params.id),
+		title: createTitle(`Kandidaten in ${province.name}`),
 		lastUpdate: new Date(),
 	};
 };
 
-export const actions = {
+export const actions: Actions = {
 	navigate: async ({ request }) => {
 		const provinceParam = (await request.formData()).get('provincie');
 		throw provinceParam ? redirect(302, `/provincie/${provinceParam}`) : error(404, 'Not found');
 	},
-} satisfies import('./$types').Actions;
+};

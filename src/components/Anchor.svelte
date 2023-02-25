@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Arrow from '~icons/mdi/arrow-top-right';
+	import { Arrow } from '~/components/icons';
 
 	export let href: string;
 	export let newtab = true;
@@ -19,6 +19,6 @@
 >
 	<Arrow class="{icon} mt-[3px] inline" />
 	<slot>
-		Lees meer op {getDomain(href)}
+		<p>Lees meer op <span class="whitespace-nowrap">{getDomain(href)}</span></p>
 	</slot>
 </a>

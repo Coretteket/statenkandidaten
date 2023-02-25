@@ -26,6 +26,6 @@
 		<slot />
 	</button>
 	{#if fallback.length > 0}
-		<a href={fallback} class={style + ' no-js'} {...$$restProps}><slot /></a>
+		<a href={fallback} class="no-js {style}" {...$$restProps}><slot /></a>
 	{/if}
 {/if}

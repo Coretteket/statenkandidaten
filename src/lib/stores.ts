@@ -1,5 +1,5 @@
 import type { Readable } from 'svelte/store';
-import { createQueryStore, q, type Input } from './query-store';
+import { createQueryStore, q, type Input } from './search-store';
 
 export const filterOptions = {
 	pagina: q.number(1),

@@ -5,24 +5,10 @@ export interface Omit {
 }
 
 export const omit: Omit = (obj, ...keys) => {
-	const ret = {} as {
-		[K in keyof typeof obj]: (typeof obj)[K];
-	};
+	const ret = {} as { [K in keyof typeof obj]: (typeof obj)[K] };
 	let key: keyof typeof obj;
-	for (key in obj) {
-		if (!keys.includes(key)) {
-			ret[key] = obj[key];
-		}
-	}
+	for (key in obj) if (!keys.includes(key)) ret[key] = obj[key];
 	return ret;
-};
-
-const debouncer = (callback: Function, wait: number) => {
-	let timeoutId: number | null = null;
-	return () => {
-		if (timeoutId) window.clearTimeout(timeoutId);
-		timeoutId = window.setTimeout(callback, wait);
-	};
 };
 
 type Values<T> = T extends Record<any, infer U> ? U : never;
@@ -54,7 +40,5 @@ export const arrayUniqueByKey = <T extends {}>(arr: T[], key: keyof T) =>
 export const arrayUnique = <T>(arr: T[]) =>
 	arr.filter((v) => v).filter((v, i, a) => a.indexOf(v) === i);
 
-export const createTitle = (val?: string) => {
-	const initial = 'Statenkandidaten';
-	return !val || val.length === 0 ? initial : `${initial} - ${val}`;
-};
+export const createTitle = (val?: string, initial = 'Statenkandidaten') =>
+	!val || val.length === 0 ? initial : `${val} – ${initial}`;

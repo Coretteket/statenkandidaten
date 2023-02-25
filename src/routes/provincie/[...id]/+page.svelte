@@ -1,27 +1,20 @@
 <script lang="ts">
-	// @hmr:keep-all
-	import Anchor from '~/components/Anchor.svelte';
+	import { Alert, City, Party, Sort, Filter, Close, FaceMan, FaceWoman } from '~/components/icons';
+
 	import Card from '~/components/Card.svelte';
-	import Alert from '~icons/mdi/alert-octagon-outline';
-	import City from '~icons/mdi/home-city-outline';
-	import PartyIcon from '~icons/mdi/account-multiple-outline';
-	import Sort from '~icons/mdi/sort';
-	import Filter from '~icons/mdi/filter';
-	import Close from '~icons/mdi/close';
-	import FaceMan from '~icons/mdi/face-man';
-	import FaceWoman from '~icons/mdi/face-woman';
 	import MultiSelect from '~/components/MultiSelect.svelte';
 	import Button from '~/components/Button.svelte';
-	import { page } from '$app/stores';
-	import { arrayUniqueByKey, switcher } from '~/scripts/utils';
 	import Tag from '~/components/Tag.svelte';
-	import type { Gender } from '@prisma/client';
-	import { createFilter } from '~/scripts/stores';
-	import type { Snapshot } from './$types';
+
+	import { getGender, slugify } from '~/lib/candidate';
+	import { arrayUniqueByKey } from '~/lib/utils';
+	import { createFilter } from '~/lib/stores';
+
+	import { page } from '$app/stores';
+
+	export let data: import('./$types').PageServerData;
 
 	const filters = createFilter($page.url);
-
-	export let data: import('./$types').PageData;
 
 	$: municipalities = [...data.municipalities].sort((a, b) =>
 		a.name.replace("'s-", '').localeCompare(b.name.replace("'s-", ''), 'nl'),
@@ -46,9 +39,7 @@
 					)
 					.some((c) => c === consMuns.find((m) => m.id === $filters.stemlocatie)!.constituencyId);
 			const munFilter =
-				listOf($filters.gemeente).length > 0
-					? $filters.gemeente[slugifyLocality(c.locality ?? '')]
-					: true;
+				listOf($filters.gemeente).length > 0 ? $filters.gemeente[slugify(c.locality ?? '')] : true;
 			const partyFiler =
 				listOf($filters.partij).length > 0
 					? c.lists.some((l) =>
@@ -78,14 +69,6 @@
 	});
 	$: lastUpdate = tf.format(data.lastUpdate);
 
-	const getGender = (gender: Gender | null) =>
-		switcher(gender, {
-			MALE: 'Man',
-			FEMALE: 'Vrouw',
-			OTHER: 'Anders',
-			default: null,
-		});
-
 	const getListName = (candidate: (typeof candidates)[number]) =>
 		data.parties
 			.filter((p) => p.lists.some((l) => l.id === candidate.lists[0].id))
@@ -97,16 +80,9 @@
 		document.getElementById('candidates')!.scrollIntoView({ behavior: 'smooth' });
 	};
 
-	const slugifyLocality = (locality: string) =>
-		locality
-			.replace(/[ ]/g, '-')
-			.replace("'s-", '')
-			.replace(/['"\(\)]/g, '')
-			.toLocaleLowerCase('nl');
-
 	$: localities = arrayUniqueByKey(
 		data.candidates
-			.flatMap((c) => ({ id: slugifyLocality(c.locality), name: c.locality }))
+			.flatMap((c) => ({ id: slugify(c.locality), name: c.locality }))
 			.sort((a, b) => a.id.localeCompare(b.id, 'nl')),
 		'id',
 	);
@@ -126,8 +102,6 @@
 				waaruit je kan kiezen, verdeeld over
 				<span class="font-medium">{data.parties.length} partijen</span>.
 			</p>
-
-			<!-- <Anchor href={data.province.website} class="text-lg" icon="w-5.5 h-5.5" /> -->
 		</Card>
 
 		<Card class="!flex-row flex-wrap lg:hidden">
@@ -151,7 +125,7 @@
 
 					<div class="relative h-8 overflow-fade-right">
 						<div class="absolute inset-0 flex gap-2 overflow-x-scroll pr-3 scrollbar-hidden">
-							<Tag icon={PartyIcon} content={getListName(candidate)} {href} />
+							<Tag icon={Party} content={getListName(candidate)} {href} />
 							<Tag icon={City} content={candidate.locality} {href} />
 							{#if candidate.gender}
 								{@const GenderIcon = candidate.gender === 'FEMALE' ? FaceWoman : FaceMan}
@@ -290,8 +264,3 @@
 <footer class="text-gray-500">
 	Laatst opgehaald op {lastUpdate}.
 </footer>
-
-<svelte:head>
-	<title>Statenkandidaten – {data.province.name}</title>
-	{@html filterShownStyle}
-</svelte:head>
