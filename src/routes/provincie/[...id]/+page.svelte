@@ -11,18 +11,27 @@
 	import { createFilter } from '~/lib/stores';
 
 	import { page } from '$app/stores';
+	import { browser } from '$app/environment';
 
 	export let data: import('./$types').PageServerData;
 
 	const filters = createFilter($page.url);
 
-	$: municipalities = [...data.municipalities].sort((a, b) =>
-		a.name.replace("'s-", '').localeCompare(b.name.replace("'s-", ''), 'nl'),
-	);
+	// Save filter state to session storage for back button on candidate pages.
+	$: if (browser) {
+		localStorage.setItem('province:filters', $page.url.pathname + $page.url.search);
+	}
 
-	$: consMuns = municipalities.filter((m) => m.constituency.provinceId === data.province.id);
+	$: selectedConstituency = data.municipalities.find(
+		(m) => m.id === $filters.stemlocatie,
+	)?.constituencyId;
 
-	const nf = new Intl.NumberFormat('nl', { minimumIntegerDigits: 2 });
+
+	const formatPosition = (candidate: (typeof data.candidates)[number]) => {
+		const nf = new Intl.NumberFormat('nl', { minimumIntegerDigits: 2 });
+		const list = candidate.lists.find((l) => l.constituency === selectedConstituency);
+		return nf.format(list?.position ?? candidate.lists[0].position);
+	};
 
 	const listOf = (input: Record<string, boolean>) =>
 		Object.entries(input)
@@ -37,7 +46,10 @@
 					.map(
 						(l) => data.parties.flatMap((p) => p.lists).find((p) => p.id === l.id)!.constituencyId,
 					)
-					.some((c) => c === consMuns.find((m) => m.id === $filters.stemlocatie)!.constituencyId);
+					.some(
+						(c) =>
+							c === data.municipalities.find((m) => m.id === $filters.stemlocatie)!.constituencyId,
+					);
 			const munFilter =
 				listOf($filters.gemeente).length > 0 ? $filters.gemeente[slugify(c.locality ?? '')] : true;
 			const partyFiler =
@@ -69,11 +81,14 @@
 	});
 	$: lastUpdate = tf.format(data.lastUpdate);
 
-	const getListName = (candidate: (typeof candidates)[number]) =>
-		data.parties
+	const getListName = (candidate: (typeof candidates)[number]) => {
+		const listAlias = candidate.lists[0].alias;
+		if (listAlias) return listAlias;
+		return data.parties
 			.filter((p) => p.lists.some((l) => l.id === candidate.lists[0].id))
 			.map((p) => p.alias ?? p.name)
 			.join('-');
+	};
 
 	const changePage = async (num: number) => {
 		await filters.update((f) => ({ pagina: f.pagina + num }));
@@ -119,7 +134,7 @@
 
 				<div class="space-y-2">
 					<a {href} class="text-xl">
-						<span class="mr-1 text-gray-800">{nf.format(candidate.lists[0].position)}.</span>
+						<span class="mr-1 text-gray-800">{formatPosition(candidate)}.</span>
 						<span class="font-semibold">{candidate.fullname}</span>
 					</a>
 
@@ -180,7 +195,7 @@
 							<h2>Stemlocatie</h2>
 							{#if $filters.stemlocatie}
 								<span class="flex items-center gap-1 text-sm text-indigo-600">
-									{municipalities.find((c) => c.id === $filters.stemlocatie)?.name}
+									{data.municipalities.find((c) => c.id === $filters.stemlocatie)?.name}
 								</span>
 							{:else}
 								<span
@@ -200,7 +215,7 @@
 							bind:value={$filters.stemlocatie}
 						>
 							<option value="" selected={!$filters.stemlocatie} disabled hidden />
-							{#each consMuns as municipality}
+							{#each data.municipalities as municipality}
 								<option value={municipality.id} selected={$filters.stemlocatie === municipality.id}>
 									{municipality.name}
 								</option>

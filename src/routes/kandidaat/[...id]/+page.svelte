@@ -6,7 +6,7 @@
 
 	import { getFullName, getGender, getOfficialName } from '~/lib/candidate';
 	import { arrayUnique } from '~/lib/utils';
-	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
 
 	export let data: import('./$types').PageServerData;
 
@@ -18,7 +18,10 @@
 	$: links = partyLinks.concat(provinceLinks);
 
 	const slugify = (str: string) => str.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+	const sessionURL = browser ? localStorage.getItem('province:filters') : undefined;
 	const fallbackURL = `/provincie/${slugify(data.lists[0].province)}`;
+	const backURL = sessionURL?.startsWith('/provincie') ? sessionURL : fallbackURL;
 </script>
 
 <div class="grid gap-6 lg:grid-cols-content-sidebar">
@@ -67,7 +70,8 @@
 						{#if data.positions.length > 1}
 							<p class="mt-2">
 								<b>Let op:</b> Deze kandidaat staat op verschillende plaatsen afhankelijk van waar jij
-								woont, kijk dus goed op je stembiljet!
+								woont, kijk dus goed op je stembiljet! Het is ook mogelijk dat deze kandidaat niet op jouw
+                stembiljet staat.
 							</p>
 						{/if}
 					</div>
@@ -105,7 +109,7 @@
 				</Row>
 			</div>
 
-			<Button type={3} on:click={() => window.history.back()} fallback={fallbackURL} class="mt-3">
+			<Button type={3} href={backURL} class="mt-3">
 				Terug naar overzicht
 			</Button>
 		</Card>

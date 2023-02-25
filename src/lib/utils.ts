@@ -1,3 +1,14 @@
+export const shuffle = <T>(array: T[]) => {
+	let currentIndex = array.length;
+	let randomIndex;
+	while (currentIndex != 0) {
+		randomIndex = Math.floor(Math.random() * currentIndex);
+		currentIndex--;
+		[array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+	}
+	return array;
+};
+
 export interface Omit {
 	<T extends object, K extends [...(keyof T)[]]>(obj: T, ...keys: K): {
 		[K2 in Exclude<keyof T, K[number]>]: T[K2];

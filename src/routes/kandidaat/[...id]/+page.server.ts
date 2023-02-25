@@ -6,7 +6,6 @@ import { get } from '@vercel/edge-config';
 import { getFullName } from '~/lib/candidate';
 import { prisma } from '~/lib/db.server';
 import { createTitle } from '~/lib/utils';
-import type { Config } from '@sveltejs/adapter-vercel';
 
 const getFullCandidate = async (id: string) => {
 	const candidate = await prisma.candidate.findUnique({
@@ -77,9 +76,20 @@ const getPositions = async (candidateId: string) => {
 	}));
 };
 
+const getProvinces = () =>
+	prisma.province
+		.findMany({ select: { name: true, constituencies: { select: { name: true } } } })
+		.then((provinces) =>
+			provinces.map((p) => ({
+				province: p.name,
+				constituencies: p.constituencies.map((c) => c.name),
+			})),
+		);
+
 const getRelevantPositions = (
 	lists: Awaited<ReturnType<typeof getLists>>,
 	positions: Awaited<ReturnType<typeof getPositions>>,
+	provinces: Awaited<ReturnType<typeof getProvinces>>,
 ) => {
 	const transformedPositions = lists.flatMap((list) => {
 		const transformed = list.ids.map((id) => ({
@@ -87,13 +97,18 @@ const getRelevantPositions = (
 			province: list.province,
 		}));
 
-		return transformed.every((position) => position.number === positions[0].number)
+		const cons = provinces.find((p) => p.province === list.province)!.constituencies;
+		const allConstituencies = cons.every((c) => transformed.some((t) => t.constituency === c));
+		const samePositions = transformed.every((position) => position.number === positions[0].number);
+
+		return samePositions && allConstituencies
 			? { name: transformed[0].province, number: positions[0].number }
 			: transformed.map(({ constituency, number }) => ({ name: constituency, number }));
 	});
 
 	return transformedPositions.sort((a, b) => a.number - b.number);
 };
+
 export const load: PageServerLoad = async ({ params, setHeaders }) => {
 	const candidate = await getFullCandidate(params.id);
 	if (!candidate) throw fail(404, { candidate: null });
@@ -101,8 +116,9 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 	const [lists, positions] = await Promise.all([
 		getLists(candidate.id),
 		getPositions(candidate.id),
-	]).then(([lists, positions]) => {
-		return [lists, getRelevantPositions(lists, positions)] as const;
+		getProvinces(),
+	]).then(([lists, positions, provinces]) => {
+		return [lists, getRelevantPositions(lists, positions, provinces)] as const;
 	});
 
 	const cache = !dev ? await get('cache-control') : undefined;

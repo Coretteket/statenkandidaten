@@ -2,7 +2,7 @@ import type { Readable } from 'svelte/store';
 import { createQueryStore, q, type Input } from './search-store';
 
 export const filterOptions = {
-	pagina: q.number(1),
+	pagina: q.number(1, { reset: true }),
 	aantal: q.number(10),
 	stemlocatie: q.string(),
 	gemeente: q.list(),

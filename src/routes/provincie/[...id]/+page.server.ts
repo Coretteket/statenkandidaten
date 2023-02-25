@@ -9,13 +9,18 @@ import { createTitle } from '~/lib/utils';
 const getCandidates = async (provinceId: string) => {
 	const candidates = await prisma.candidate.findMany({
 		where: { lists: { some: { list: { constituency: { provinceId } } } } },
-		include: { lists: { include: { list: { select: { id: true } } } } },
+		include: { lists: { include: { list: true } } },
 		orderBy: [{ surname: 'asc' }],
 	});
 
 	return candidates.map((c) => {
 		const { initials, firstname, prefix, surname, elected, incumbent, lists: _, ...rest } = c;
-		const lists = c.lists.map((l) => ({ id: l.list.id, position: l.position }));
+		const lists = c.lists.map((l) => ({
+			id: l.list.id,
+			position: l.position,
+			constituency: l.list.constituencyId,
+			alias: l.list.alias,
+		}));
 		const fullname = getFullName(c);
 		return { ...rest, lists, fullname };
 	});
