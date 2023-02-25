@@ -48,6 +48,7 @@
 					type="checkbox"
 					class="form-checkbox rounded border-gray-300 text-indigo-600 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 focus:ring-offset-0"
 					bind:checked={$filters[name][option.id]}
+					on:change={() => filters.reset('pagina')}
 					value={option.id}
 					{name}
 				/>

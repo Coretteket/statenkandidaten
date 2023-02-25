@@ -1,13 +1,15 @@
+import { browser } from '$app/environment';
 import { goto } from '$app/navigation';
-import { get, writable } from 'svelte/store';
+import { page } from '$app/stores';
+import { get, writable, type Updater } from 'svelte/store';
+import type { Entries, Prettify } from '~/types/utils';
 
 const constructOption =
 	<V>(type: V) =>
 	<K>() =>
-	<T extends K | undefined = undefined>(value?: T, { reset } = { reset: false }) => ({
-		value: value as T extends K ? K : K | undefined,
+	<T extends K | null = null>(value?: T) => ({
+		value: (value ?? null) as T extends K ? K : K | null,
 		type,
-		reset,
 	});
 
 const queryOptions = {
@@ -18,82 +20,88 @@ const queryOptions = {
 
 export const q = queryOptions;
 
-type Prettify<T> = { [K in keyof T]: T[K] } & {};
+const GOTO_OPTIONS = {
+	keepFocus: true,
+	noScroll: true,
+	replaceState: true,
+};
+
+export const createQueryStore = <T extends Input>(input: T) => {
+	type Defaults = { [t in keyof T]: T[t]['value'] };
+	type Stored = Prettify<{
+		[t in keyof T]: Defaults[t] extends string[] | null ? Record<string, boolean> : Defaults[t];
+	}>;
+
+	const { set, subscribe } = writable<Stored>();
+
+	const entries = Object.entries(input);
+
+	let setter: (value: Stored) => Promise<void> = async () => {};
+
+	const unsubPage = page.subscribe(($page) => {
+		const search = $page.url.searchParams;
+		const values = Object.fromEntries(
+			entries.map((entry) => {
+				if (entry[1].type === 'string') {
+					return [entry[0], search.get(entry[0]) ?? entry[1].value];
+				} else if (entry[1].type === 'number') {
+					return [entry[0], Number(search.get(entry[0]) ?? entry[1].value)];
+				} else if (entry[1].type === 'list') {
+					const list = search.getAll(entry[0]);
+					return [entry[0], Object.fromEntries(list.map((item) => [item, true])) ?? entry[1].value];
+				}
+			}) as Entries<Stored>,
+		) as Stored;
+		set(values);
+		setter = (value) => {
+			const search = new URLSearchParams($page.url.search);
+			Object.entries(value).forEach((entry) => {
+				search.delete(entry[0]);
+				if (entry[1] && entry[1] !== input[entry[0]].value) {
+					if (typeof entry[1] === 'string') {
+						search.set(entry[0], entry[1]);
+					} else if (typeof entry[1] === 'number') {
+						search.set(entry[0], entry[1].toString());
+					} else if (typeof entry[1] === 'object') {
+						Object.entries(entry[1]).forEach(([k, v]) => {
+							if (v) search.append(entry[0], k);
+						});
+					}
+				}
+			});
+			return goto(`?${search}`, GOTO_OPTIONS);
+		};
+	});
+
+	const reset = (key: keyof Stored) => {
+		setter({ ...get({ subscribe }), [key]: input[key].value });
+	};
+
+	const sub = (...props: Parameters<typeof subscribe>) => {
+		const unsub = subscribe(...props);
+		return () => {
+			if (browser) unsubPage();
+			unsub();
+		};
+	};
+
+	return {
+		subscribe: sub,
+		set: setter,
+    reset,
+		update: (updater: Updater<Stored>) => {
+			const currentValue = get({ subscribe });
+			const newValue = updater(currentValue);
+			return setter(newValue);
+		},
+	};
+};
+
 
 export type Input = Record<string, InputOption>;
 type InputOption = ReturnType<(typeof queryOptions)[keyof typeof queryOptions]>;
-type InputDefaults<T extends Input> = Prettify<{ [K in keyof T]: T[K]['value'] }>;
-
-type QueryData<T extends Input> = Prettify<{
-	[K in keyof T]: InputDefaults<T>[K] extends string[] | undefined
-		? Record<string, boolean>
-		: InputDefaults<T>[K];
-}>;
 
 export type InputByType<T extends Input, Q extends keyof typeof queryOptions> = {
 	[K in keyof T]: T[K]['type'] extends Q ? K : never;
 }[keyof T];
 
-export const createQueryStore =
-	<T extends Input>(input: T) =>
-	(url: URL) => {
-		const entries = Object.entries(input);
-
-		const defaults = Object.fromEntries(
-			entries.map(([key, val]) => {
-				if (val.type === 'list') {
-					const search = url.searchParams.getAll(key).map((v) => [v, true]);
-					const defaults = val.value?.map((v) => [v, true]);
-					const obj = Object.fromEntries(search.length > 0 ? search : defaults ?? []);
-					return [key, obj] satisfies [string, Record<string, boolean>];
-				}
-
-				if (val.type === 'number') {
-					const search = url.searchParams.get(key) ? Number(url.searchParams.get(key)) : null;
-					return [key, search ?? val.value] satisfies [string, number | undefined];
-				}
-
-				const search = url.searchParams.get(key);
-				return [key, search ?? val.value] satisfies [string, string | undefined];
-			}),
-		) as QueryData<T>;
-
-		const store = writable(defaults);
-
-		const buildSearch = (params: QueryData<T>) => {
-			const search = new URLSearchParams();
-
-			for (const key in params) {
-				const val = params[key];
-				if (typeof val === 'object') {
-					const values = Object.entries(val).filter(([_, v]) => v);
-					values.forEach(([v]) => search.append(key, v));
-				} else if (
-					((typeof val === 'string' && val.length > 0) || (typeof val === 'number' && val > 0)) &&
-					input[key].value !== val
-				) {
-					search.append(key, val.toString());
-				}
-			}
-
-			const newURL = new URL(url.href);
-			newURL.search = search.toString();
-
-			return goto(newURL, { replaceState: true, keepFocus: true, noScroll: true });
-		};
-
-		const reset = entries.filter(([_, v]) => v.reset).map(([k]) => k) as (keyof QueryData<T>)[];
-
-		const set = (value: QueryData<T>) => {
-			for (const key of reset) value[key] = input[key].value as QueryData<T>[typeof key];
-			buildSearch(value);
-			store.set(value);
-		};
-
-		const update = (updater: (value: QueryData<T>) => Partial<QueryData<T>>) => {
-			store.update((val) => ({ ...val, ...updater(val) }));
-			return buildSearch(get(store));
-		};
-
-		return { subscribe: store.subscribe, set, update };
-	};

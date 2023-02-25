@@ -15,7 +15,7 @@
 
 	export let data: import('./$types').PageServerData;
 
-	const filters = createFilter($page.url);
+	const filters = createFilter();
 
 	// Save filter state to session storage for back button on candidate pages.
 	$: if (browser) {
@@ -25,7 +25,6 @@
 	$: selectedConstituency = data.municipalities.find(
 		(m) => m.id === $filters.stemlocatie,
 	)?.constituencyId;
-
 
 	const formatPosition = (candidate: (typeof data.candidates)[number]) => {
 		const nf = new Intl.NumberFormat('nl', { minimumIntegerDigits: 2 });
@@ -91,7 +90,7 @@
 	};
 
 	const changePage = async (num: number) => {
-		await filters.update((f) => ({ pagina: f.pagina + num }));
+		await filters.update((f) => ({ ...f, pagina: f.pagina + num }));
 		document.getElementById('candidates')!.scrollIntoView({ behavior: 'smooth' });
 	};
 
@@ -214,9 +213,9 @@
 							class="w-lg form-select my-1 w-full cursor-pointer rounded-md border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
 							bind:value={$filters.stemlocatie}
 						>
-							<option value="" selected={!$filters.stemlocatie} disabled hidden />
+							<option value="" disabled hidden />
 							{#each data.municipalities as municipality}
-								<option value={municipality.id} selected={$filters.stemlocatie === municipality.id}>
+								<option value={municipality.id}>
 									{municipality.name}
 								</option>
 							{/each}
