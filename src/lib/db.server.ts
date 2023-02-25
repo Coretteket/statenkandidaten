@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client/edge';
 
 const globalPrisma = globalThis as typeof globalThis & { prisma?: PrismaClient };
 const prisma = globalPrisma.prisma ?? new PrismaClient({ log: ['error', 'warn'] });

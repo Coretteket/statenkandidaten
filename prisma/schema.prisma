@@ -9,6 +9,7 @@ datasource db {
   provider     = "mysql"
   relationMode = "prisma"
   url          = env("DATABASE_URL")
+  directUrl    = env("DIRECT_URL")
 }
 
 model Province {
@@ -51,6 +52,7 @@ model Party {
 model List {
   id             String             @id @default(nanoid(6))
   name           String
+  alias          String?
   position       Int
   constituencyId String
   constituency   Constituency       @relation(fields: [constituencyId], references: [id])

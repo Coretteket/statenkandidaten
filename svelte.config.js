@@ -6,7 +6,7 @@ const config = {
 	// Consult https://kit.svelte.dev/docs/integrations#preprocessors
 	// for more information about preprocessors
 	preprocess: vitePreprocess(),
-	kit: { adapter: adapter(), alias: { '~': 'src' } },
+	kit: { adapter: adapter({ runtime: 'edge' }), alias: { '~': 'src' } },
 };
 
 export default config;
