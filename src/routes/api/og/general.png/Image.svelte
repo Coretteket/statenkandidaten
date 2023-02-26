@@ -15,7 +15,7 @@
 		</h1>
 		<h1 class="text-5xl font-normal text-gray-700">Vind de kandidaat die écht bij jou past!</h1>
 		<div class="mt-10 flex justify-start">
-			<div class="rounded-xl bg-indigo-100 px-7 py-5 text-4xl font-semibold text-indigo-900/90">
+			<div class="flex items-center rounded-xl bg-indigo-100 px-7 py-4.5 text-[2.5rem] font-semibold text-indigo-900/90">
 				Zoek in jouw provincie
 			</div>
 		</div>
