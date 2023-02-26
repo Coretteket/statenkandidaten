@@ -8,8 +8,8 @@
 
 <svelte:head>
 	<title>{meta.title}</title>
-	<meta property="og:title" content={meta['meta:title'] ?? meta.title} />
-	<meta name="twitter:title" content={meta['meta:title'] ?? meta.title} />
+	<meta property="og:title" content={meta.title} />
+	<meta name="twitter:title" content={meta.title} />
 
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content={meta.url.href} />

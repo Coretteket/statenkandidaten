@@ -1,7 +1,6 @@
 export type Meta = {
 	url: URL;
 	title: string;
-	'meta:title'?: string;
 	description: string;
 	image: `/api/og/${string}`;
 	'image:width': string;

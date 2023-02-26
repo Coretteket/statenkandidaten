@@ -61,9 +61,7 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 
 	setHeaders({ 'cache-control': await getCache() });
 
-	const meta = createMeta({
-		title: createTitle(`Kandidaten in ${province.name}`),
-	});
+	const meta = createMeta({ title: createTitle(`Kandidaten in ${province.name}`) });
 
 	return {
 		meta,

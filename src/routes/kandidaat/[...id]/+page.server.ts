@@ -131,7 +131,3 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 
 	return { meta, candidate, lists, positions };
 };
-
-// export const config: Config = {
-// 	isr: { expiration: 60 },
-// };
