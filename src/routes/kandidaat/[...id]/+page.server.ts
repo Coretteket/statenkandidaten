@@ -122,7 +122,7 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 
 	const meta = createMeta({
 		title: createTitle(getFullName(candidate)),
-		image: `/api/og/kandidaat/${candidate.id}`,
+		image: `/api/og/kandidaat/${candidate.id}.png`,
 		username: candidate.id,
 		firstname: candidate.firstname ?? candidate.initials,
 		surname: [candidate.prefix, candidate.surname].filter(Boolean).join(' '),
