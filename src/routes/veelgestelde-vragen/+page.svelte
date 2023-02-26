@@ -9,4 +9,4 @@
 	<a href="/">Home</a>
 </Card>
 
-<SEO image="/og/general.png" />
+<SEO image="/api/og/general.png" />

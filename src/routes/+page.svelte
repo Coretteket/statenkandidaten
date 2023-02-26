@@ -111,4 +111,4 @@
 	<Button type={3} href="/veelgestelde-vragen">Meer vragen?</Button>
 </Card>
 
-<SEO image="/og/general.png" />
+<SEO image="/api/og/general.png" />

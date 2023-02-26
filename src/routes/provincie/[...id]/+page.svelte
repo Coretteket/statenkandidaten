@@ -5,6 +5,7 @@
 	import MultiSelect from '~/components/MultiSelect.svelte';
 	import Button from '~/components/Button.svelte';
 	import Tag from '~/components/Tag.svelte';
+  import SEO from '~/components/SEO.svelte';
 
 	import { formatPosition, getGender, getListName, slugify } from '~/lib/candidate';
 	import { arrayUniqueByKey } from '~/lib/utils';
@@ -25,7 +26,6 @@
 	$: selectedConstituency = data.municipalities.find(
 		(m) => m.id === $filters.stemlocatie,
 	)?.constituencyId;
-
 
 	const listOf = (input: Record<string, boolean>) =>
 		Object.entries(input)
@@ -119,7 +119,9 @@
 
 				<div class="space-y-2">
 					<a {href} class="text-xl">
-						<span class="mr-1 text-gray-800">{formatPosition(candidate.lists, selectedConstituency)}.</span>
+						<span class="mr-1 text-gray-800"
+							>{formatPosition(candidate.lists, selectedConstituency)}.</span
+						>
 						<span class="font-semibold">{candidate.fullname}</span>
 					</a>
 
@@ -264,3 +266,5 @@
 <footer class="text-gray-500">
 	Laatst opgehaald op {lastUpdate}.
 </footer>
+
+<SEO image="/api/og/general.png" />
