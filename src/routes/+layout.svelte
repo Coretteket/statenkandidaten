@@ -65,7 +65,7 @@
 <SEO
 	url={$page.url}
 	title={pageTitle}
-	description="Op 15 maart mogen we weer stemmen, maar op wie eigenlijk? Op Statenkandidaten.nl vindt jij de kandidaat die het beste bij jou past."
+	description="Op 15 maart mogen we weer stemmen, maar op wie eigenlijk? Op Statenkandidaten.nl vind jij de kandidaat die het beste bij jou past."
 />
 
 <svelte:head>

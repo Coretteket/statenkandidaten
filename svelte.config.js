@@ -6,7 +6,11 @@ const config = {
 	// Consult https://kit.svelte.dev/docs/integrations#preprocessors
 	// for more information about preprocessors
 	preprocess: vitePreprocess(),
-	kit: { adapter: adapter({ runtime: 'edge' }), alias: { '~': 'src' } },
+	kit: {
+		adapter: adapter({ runtime: 'edge' }),
+		alias: { '~': 'src' },
+		prerender: { origin: 'https://statenkandidaten.nl' },
+	},
 };
 
 export default config;

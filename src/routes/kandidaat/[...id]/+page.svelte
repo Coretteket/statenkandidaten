@@ -155,9 +155,7 @@
 </div>
 
 <SEO
-	image="{$page.url.origin}/og/kandidaat/{data.candidate.id}.png"
-	imagewidth={1200}
-	imageheight={630}
+	image="/og/kandidaat/{data.candidate.id}.png"
 	username={data.candidate.id}
 	firstname={data.candidate.firstname ?? data.candidate.initials}
 	lastname={(data.candidate.prefix ? data.candidate.prefix + ' ' : '') + data.candidate.surname}

@@ -1,10 +1,14 @@
 <script lang="ts">
+	import { page } from '$app/stores';
+
+	$: origin = $page.url.origin;
+
 	export let title: string | undefined = undefined;
 	export let url: URL | undefined = undefined;
 	export let description: string | undefined = undefined;
-	export let image: string | undefined = undefined;
-	export let imagewidth: number | undefined = undefined;
-	export let imageheight: number | undefined = undefined;
+	export let image: `/${string}` | undefined = undefined;
+	export let imagewidth: number | undefined = 1200;
+	export let imageheight: number | undefined = 630;
 	export let username: string | undefined = undefined;
 	export let firstname: string | undefined = undefined;
 	export let lastname: string | undefined = undefined;
@@ -32,8 +36,8 @@
 	{/if}
 
 	{#if image}
-		<meta property="og:image" content={image} />
-		<meta name="twitter:image" content={image} />
+		<meta property="og:image" content="{origin}{image}" />
+		<meta name="twitter:image" content="{origin}{image}" />
 		<meta name="twitter:card" content="summary_large_image" />
 	{/if}
 

@@ -1,4 +1,3 @@
-import type Image from './kandidaat/[id].png/Image.svelte';
 import { html } from 'satori-html';
 import satori from 'satori';
 import { Resvg } from '@resvg/resvg-js';
@@ -23,7 +22,7 @@ const isComponent = (component: any): component is Component => {
 	return component && component.render && typeof component.render === 'function';
 };
 
-export const ImageResponse = async (component: typeof Image, options: ImageResponseOptions) => {
+export const ImageResponse = async (component: unknown, options: ImageResponseOptions) => {
 	if (!isComponent(component)) throw new Error('Component is not a Svelte component.');
 
 	const result = component.render(options.props);
