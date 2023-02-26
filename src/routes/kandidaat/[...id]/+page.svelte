@@ -3,10 +3,12 @@
 	import Button from '~/components/Button.svelte';
 	import Card from '~/components/Card.svelte';
 	import Row from '~/components/Row.svelte';
+	import SEO from '~/components/SEO.svelte';
 
-	import { getFullName, getGender, getOfficialName } from '~/lib/candidate';
+	import { getFullName, getGender, getOfficialName, slugify } from '~/lib/candidate';
 	import { arrayUnique } from '~/lib/utils';
 	import { browser } from '$app/environment';
+	import { page } from '$app/stores';
 
 	export let data: import('./$types').PageServerData;
 
@@ -17,11 +19,15 @@
 	$: provinceLinks = data.lists.map((list) => list.links.province);
 	$: links = partyLinks.concat(provinceLinks);
 
-	const slugify = (str: string) => str.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-
 	const sessionURL = browser ? localStorage.getItem('province:filters') : undefined;
 	const fallbackURL = `/provincie/${slugify(data.lists[0].province)}`;
-	const backURL = sessionURL?.startsWith('/provincie') ? sessionURL : fallbackURL;
+	const backURL =
+		// Only use session URL if it's a province URL
+		sessionURL?.startsWith('/provincie') &&
+		// Only use if it's a province that the candidate is on the list for
+		data.lists.some((l) => sessionURL.includes(slugify(l.province)))
+			? sessionURL
+			: fallbackURL;
 </script>
 
 <div class="grid gap-6 lg:grid-cols-content-sidebar">
@@ -70,8 +76,8 @@
 						{#if data.positions.length > 1}
 							<p class="mt-2">
 								<b>Let op:</b> Deze kandidaat staat op verschillende plaatsen afhankelijk van waar jij
-								woont, kijk dus goed op je stembiljet! Het is ook mogelijk dat deze kandidaat niet op jouw
-                stembiljet staat.
+								woont, kijk dus goed op je stembiljet! Het is ook mogelijk dat deze kandidaat niet op
+								jouw stembiljet staat.
 							</p>
 						{/if}
 					</div>
@@ -109,9 +115,7 @@
 				</Row>
 			</div>
 
-			<Button type={3} href={backURL} class="mt-3">
-				Terug naar overzicht
-			</Button>
+			<Button type={3} href={backURL} class="mt-3">Terug naar overzicht</Button>
 		</Card>
 	</div>
 
@@ -149,3 +153,13 @@
 		</Card>
 	</div>
 </div>
+
+<SEO
+	image="{$page.url.origin}/og/kandidaat/{data.candidate.id}.png"
+	imagewidth={1200}
+	imageheight={630}
+	username={data.candidate.id}
+	firstname={data.candidate.firstname ?? data.candidate.initials}
+	lastname={(data.candidate.prefix ? data.candidate.prefix + ' ' : '') + data.candidate.surname}
+	gender={data.candidate.gender?.toLowerCase() ?? undefined}
+/>

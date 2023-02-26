@@ -1,4 +1,5 @@
 <script lang="ts">
+	import SEO from '~/components/SEO.svelte';
 	import Logo from '~/components/Logo.svelte';
 	import { Share, Help } from '~/components/icons';
 
@@ -61,8 +62,13 @@
 	<slot />
 </main>
 
+<SEO
+	url={$page.url}
+	title={pageTitle}
+	description="Op 15 maart mogen we weer stemmen, maar op wie eigenlijk? Op Statenkandidaten.nl vindt jij de kandidaat die het beste bij jou past."
+/>
+
 <svelte:head>
-	<title>{pageTitle}</title>
 	<noscript>
 		<style>
 			.js-only {

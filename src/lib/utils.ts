@@ -47,3 +47,6 @@ export const arrayUnique = <T>(arr: T[]) =>
 
 export const createTitle = (val?: string, initial = 'Statenkandidaten') =>
 	!val || val.length === 0 ? initial : `${val} – ${initial}`;
+
+export const shorten = (str: string, max = 20) =>
+	str.length > max ? str.slice(0, max - 3) + '…' : str;

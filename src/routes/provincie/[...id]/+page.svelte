@@ -6,7 +6,7 @@
 	import Button from '~/components/Button.svelte';
 	import Tag from '~/components/Tag.svelte';
 
-	import { getGender, slugify } from '~/lib/candidate';
+	import { formatPosition, getGender, getListName, slugify } from '~/lib/candidate';
 	import { arrayUniqueByKey } from '~/lib/utils';
 	import { createFilter } from '~/lib/stores';
 
@@ -26,11 +26,6 @@
 		(m) => m.id === $filters.stemlocatie,
 	)?.constituencyId;
 
-	const formatPosition = (candidate: (typeof data.candidates)[number]) => {
-		const nf = new Intl.NumberFormat('nl', { minimumIntegerDigits: 2 });
-		const list = candidate.lists.find((l) => l.constituency === selectedConstituency);
-		return nf.format(list?.position ?? candidate.lists[0].position);
-	};
 
 	const listOf = (input: Record<string, boolean>) =>
 		Object.entries(input)
@@ -80,15 +75,6 @@
 	});
 	$: lastUpdate = tf.format(data.lastUpdate);
 
-	const getListName = (candidate: (typeof candidates)[number]) => {
-		const listAlias = candidate.lists[0].alias;
-		if (listAlias) return listAlias;
-		return data.parties
-			.filter((p) => p.lists.some((l) => l.id === candidate.lists[0].id))
-			.map((p) => p.alias ?? p.name)
-			.join('-');
-	};
-
 	const changePage = async (num: number) => {
 		await filters.update((f) => ({ ...f, pagina: f.pagina + num }));
 		document.getElementById('candidates')!.scrollIntoView({ behavior: 'smooth' });
@@ -133,13 +119,13 @@
 
 				<div class="space-y-2">
 					<a {href} class="text-xl">
-						<span class="mr-1 text-gray-800">{formatPosition(candidate)}.</span>
+						<span class="mr-1 text-gray-800">{formatPosition(candidate.lists, selectedConstituency)}.</span>
 						<span class="font-semibold">{candidate.fullname}</span>
 					</a>
 
 					<div class="relative h-8 overflow-fade-right">
 						<div class="absolute inset-0 flex gap-2 overflow-x-scroll pr-3 scrollbar-hidden">
-							<Tag icon={Party} content={getListName(candidate)} {href} />
+							<Tag icon={Party} content={getListName(candidate.lists[0], data.parties)} {href} />
 							<Tag icon={City} content={candidate.locality} {href} />
 							{#if candidate.gender}
 								{@const GenderIcon = candidate.gender === 'FEMALE' ? FaceWoman : FaceMan}

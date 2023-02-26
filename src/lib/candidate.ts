@@ -17,6 +17,29 @@ export const getOfficialName = ({ firstname, initials, prefix, surname }: Partia
 	`${[prefix, surname].filter(Boolean).join(' ')}, ${initials}` +
 	(firstname ? ` (${firstname})` : '');
 
+export const getListName = (
+	candidateList: { id: string; alias: string | null },
+	parties: { name: string; alias: string | null; lists: { id: string }[] }[],
+) => {
+	const listAlias = candidateList.alias;
+	if (listAlias) return listAlias;
+	return parties
+		.filter((p) => p.lists.some((l) => l.id === candidateList.id))
+		.map((p) => p.alias ?? p.name)
+		.join('-');
+};
+
+export const formatPosition = (
+	candidateLists: { constituency?: string; position: number }[],
+	selectedConstituency?: string,
+) => {
+	const nf = new Intl.NumberFormat('nl', { minimumIntegerDigits: 2 });
+	const list = selectedConstituency
+		? candidateLists.find((l) => l.constituency === selectedConstituency) ?? candidateLists[0]
+		: candidateLists[0];
+	return nf.format(list.position);
+};
+
 export const slugify = (locality: string | null | undefined) =>
 	(locality ?? '')
 		.replace(/[ ]/g, '-')

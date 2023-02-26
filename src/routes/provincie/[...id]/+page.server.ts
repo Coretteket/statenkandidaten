@@ -1,8 +1,6 @@
 import type { PageServerLoad, Actions } from './$types';
-import { dev } from '$app/environment';
 import { error, redirect } from '@sveltejs/kit';
-import { prisma } from '~/lib/db.server';
-import { get } from '@vercel/edge-config';
+import { getCache, prisma } from '~/lib/db.server';
 import { getFullName } from '~/lib/candidate';
 import { createTitle } from '~/lib/utils';
 
@@ -61,8 +59,7 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 
 	if (!province) throw redirect(307, '/404');
 
-	const cache = !dev ? await get('cache-control') : undefined;
-	if (cache) setHeaders({ 'cache-control': cache });
+	setHeaders({ 'cache-control': await getCache() });
 
 	return {
 		province,

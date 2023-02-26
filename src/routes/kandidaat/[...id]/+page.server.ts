@@ -1,10 +1,7 @@
 import type { PageServerLoad } from './$types';
-
-import { dev } from '$app/environment';
 import { fail } from '@sveltejs/kit';
-import { get } from '@vercel/edge-config';
 import { getFullName } from '~/lib/candidate';
-import { prisma } from '~/lib/db.server';
+import { getCache, prisma } from '~/lib/db.server';
 import { createTitle } from '~/lib/utils';
 
 const getFullCandidate = async (id: string) => {
@@ -121,8 +118,7 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 		return [lists, getRelevantPositions(lists, positions, provinces)] as const;
 	});
 
-	const cache = !dev ? await get('cache-control') : undefined;
-	if (cache) setHeaders({ 'cache-control': cache });
+	setHeaders({ 'cache-control': await getCache() });
 
 	const title = createTitle(getFullName(candidate));
 
