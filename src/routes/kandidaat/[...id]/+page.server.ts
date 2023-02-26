@@ -2,7 +2,7 @@ import type { PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import { getFullName } from '~/lib/candidate';
 import { getCache, prisma } from '~/lib/db.server';
-import { createTitle } from '~/lib/utils';
+import { createMeta, createTitle } from '~/lib/meta';
 
 const getFullCandidate = async (id: string) => {
 	const candidate = await prisma.candidate.findUnique({
@@ -120,9 +120,16 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 
 	setHeaders({ 'cache-control': await getCache() });
 
-	const title = createTitle(getFullName(candidate));
+	const meta = createMeta({
+		title: createTitle(getFullName(candidate)),
+		image: `/api/og/kandidaat/${candidate.id}`,
+		username: candidate.id,
+		firstname: candidate.firstname ?? candidate.initials,
+		surname: [candidate.prefix, candidate.surname].filter(Boolean).join(' '),
+		gender: candidate.gender ?? undefined,
+	});
 
-	return { title, candidate, lists, positions };
+	return { meta, candidate, lists, positions };
 };
 
 // export const config: Config = {

@@ -1,8 +1,10 @@
 import type { PageLoad } from './$types';
-import { createTitle } from '~/lib/utils';
+import { createMeta, createTitle } from '~/lib/meta';
 
-export const load: PageLoad = async () => {
-	return { title: createTitle('Veelgestelde vragen') };
-};
+export const load: PageLoad = async () => ({
+	meta: createMeta({
+		title: createTitle('Veelgestelde vragen'),
+	}),
+});
 
 export const prerender = true;

@@ -8,7 +8,6 @@
 	import { getFullName, getGender, getOfficialName, slugify } from '~/lib/candidate';
 	import { arrayUnique } from '~/lib/utils';
 	import { browser } from '$app/environment';
-	import { page } from '$app/stores';
 
 	export let data: import('./$types').PageServerData;
 
@@ -153,11 +152,3 @@
 		</Card>
 	</div>
 </div>
-
-<SEO
-	image="/api/og/kandidaat/{data.candidate.id}.png"
-	username={data.candidate.id}
-	firstname={data.candidate.firstname ?? data.candidate.initials}
-	lastname={(data.candidate.prefix ? data.candidate.prefix + ' ' : '') + data.candidate.surname}
-	gender={data.candidate.gender?.toLowerCase() ?? undefined}
-/>

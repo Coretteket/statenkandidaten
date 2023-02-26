@@ -2,7 +2,7 @@ import type { PageServerLoad, Actions } from './$types';
 import { error, redirect } from '@sveltejs/kit';
 import { getCache, prisma } from '~/lib/db.server';
 import { getFullName } from '~/lib/candidate';
-import { createTitle } from '~/lib/utils';
+import { createMeta, createTitle } from '~/lib/meta';
 
 const getCandidates = async (provinceId: string) => {
 	const candidates = await prisma.candidate.findMany({
@@ -61,12 +61,16 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 
 	setHeaders({ 'cache-control': await getCache() });
 
+	const meta = createMeta({
+		title: createTitle(`Kandidaten in ${province.name}`),
+	});
+
 	return {
+		meta,
 		province,
 		parties: getParties(params.id),
 		candidates: getCandidates(params.id),
 		municipalities: getMunicipalities(params.id),
-		title: createTitle(`Kandidaten in ${province.name}`),
 		lastUpdate: new Date(),
 	};
 };

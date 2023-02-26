@@ -88,7 +88,7 @@ export const createQueryStore = <T extends Input>(input: T) => {
 	return {
 		subscribe: sub,
 		set: setter,
-    reset,
+		reset,
 		update: (updater: Updater<Stored>) => {
 			const currentValue = get({ subscribe });
 			const newValue = updater(currentValue);
@@ -97,11 +97,9 @@ export const createQueryStore = <T extends Input>(input: T) => {
 	};
 };
 
-
 export type Input = Record<string, InputOption>;
 type InputOption = ReturnType<(typeof queryOptions)[keyof typeof queryOptions]>;
 
 export type InputByType<T extends Input, Q extends keyof typeof queryOptions> = {
 	[K in keyof T]: T[K]['type'] extends Q ? K : never;
 }[keyof T];
-

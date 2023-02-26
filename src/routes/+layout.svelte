@@ -14,6 +14,8 @@
 	$: pageTitle = $page.data.title ?? 'Statenkandidaten';
 </script>
 
+<SEO />
+
 <header class="h-64 w-full bg-gradient-to-tr from-indigo-700 via-indigo-500 to-indigo-400">
 	<nav
 		class="relative mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-6 xs:py-8 sm:px-6"
@@ -61,12 +63,6 @@
 <main class="mx-auto -mt-52 grid max-w-5xl gap-6 py-10 pb-14 xs:-mt-48 xs:px-4 sm:px-6">
 	<slot />
 </main>
-
-<SEO
-	url={$page.url}
-	title={pageTitle}
-	description="Op 15 maart mogen we weer stemmen, maar op wie eigenlijk? Op Statenkandidaten.nl vind jij de kandidaat die het beste bij jou past."
-/>
 
 <svelte:head>
 	<noscript>

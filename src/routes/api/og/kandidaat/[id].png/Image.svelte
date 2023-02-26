@@ -17,7 +17,7 @@
 	<div class="-mt-12 flex flex-col px-20">
 		<h2 class="mb-6 text-5xl font-normal text-gray-600">Op 15 maart kan je stemmen op</h2>
 		<h1 class="text-[5rem] font-normal text-gray-800">
-			{position}.<span class="flex ml-5 font-extrabold text-gray-900">{name}</span>
+			{position}.<span class="ml-5 flex font-extrabold text-gray-900">{name}</span>
 		</h1>
 		<div class="mt-6 flex">
 			<div

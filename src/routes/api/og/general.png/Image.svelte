@@ -13,9 +13,7 @@
 		<h1 class="mb-4 text-[4rem] font-bold text-gray-900">
 			Op 15 maart mogen we weer stemmen, maar op wie eigenlijk?
 		</h1>
-		<h1 class="text-5xl font-normal text-gray-700">
-			Vind de kandidaat die écht bij jou past!
-		</h1>
+		<h1 class="text-5xl font-normal text-gray-700">Vind de kandidaat die écht bij jou past!</h1>
 		<div class="mt-10 flex justify-start">
 			<div class="rounded-xl bg-indigo-100 px-7 py-5 text-4xl font-semibold text-indigo-900/90">
 				Zoek in jouw provincie

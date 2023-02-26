@@ -45,8 +45,5 @@ export const arrayUniqueByKey = <T extends {}>(arr: T[], key: keyof T) =>
 export const arrayUnique = <T>(arr: T[]) =>
 	arr.filter((v) => v).filter((v, i, a) => a.indexOf(v) === i);
 
-export const createTitle = (val?: string, initial = 'Statenkandidaten') =>
-	!val || val.length === 0 ? initial : `${val} – ${initial}`;
-
 export const shorten = (str: string, max = 20) =>
 	str.length > max ? str.slice(0, max - 3) + '…' : str;

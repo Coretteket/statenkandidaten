@@ -5,7 +5,7 @@
 	import MultiSelect from '~/components/MultiSelect.svelte';
 	import Button from '~/components/Button.svelte';
 	import Tag from '~/components/Tag.svelte';
-  import SEO from '~/components/SEO.svelte';
+	import SEO from '~/components/SEO.svelte';
 
 	import { formatPosition, getGender, getListName, slugify } from '~/lib/candidate';
 	import { arrayUniqueByKey } from '~/lib/utils';
@@ -266,5 +266,3 @@
 <footer class="text-gray-500">
 	Laatst opgehaald op {lastUpdate}.
 </footer>
-
-<SEO image="/api/og/general.png" />

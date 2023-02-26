@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import Anchor from '~/components/Anchor.svelte';
 	import Button from '~/components/Button.svelte';
 	import Card from '~/components/Card.svelte';
 	import Map from '~/components/Map.svelte';
 	import SEO from '~/components/SEO.svelte';
+
+	import { createTitle } from '~/lib/meta';
 
 	export let data: import('./$types').PageServerData;
 
@@ -110,5 +111,3 @@
 	</div>
 	<Button type={3} href="/veelgestelde-vragen">Meer vragen?</Button>
 </Card>
-
-<SEO image="/api/og/general.png" />

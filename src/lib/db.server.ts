@@ -9,6 +9,6 @@ const globalPrisma = globalThis as typeof globalThis & { prisma?: PrismaClientNo
 const prisma = globalPrisma.prisma ?? new PrismaClient({ log: ['error', 'warn'] });
 if (import.meta.env.DEV) globalPrisma.prisma = prisma;
 
-export const getCache = () => !dev ? get('cache-control') : 'public';
+export const getCache = () => (!dev ? get('cache-control') : 'public');
 
 export { prisma };

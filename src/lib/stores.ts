@@ -1,8 +1,8 @@
 import { createQueryStore, q, type Input } from './search-store';
 
 export const filterOptions = {
-  pagina: q.number(1),
-  aantal: q.number(15),
+	pagina: q.number(1),
+	aantal: q.number(15),
 	stemlocatie: q.string(),
 	gemeente: q.list(),
 	partij: q.list(),
