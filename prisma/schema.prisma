@@ -65,17 +65,19 @@ model List {
 }
 
 model Candidate {
-  id        String             @id
-  initials  String
-  firstname String?
-  prefix    String?
-  surname   String
-  gender    Gender?
-  locality  String
-  incumbent Boolean?
-  elected   Boolean?
-  role      Role?
-  lists     CandidatesOnList[]
+  id         String             @id
+  initials   String
+  firstname  String?
+  prefix     String?
+  surname    String
+  gender     Gender?
+  locality   String
+  incumbent  Boolean?
+  deputy     Boolean?
+  parliament Boolean?
+  elected    Boolean?
+  role       Role?
+  lists      CandidatesOnList[]
 
   @@unique([initials, surname, locality])
 }
