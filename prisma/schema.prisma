@@ -76,7 +76,6 @@ model Candidate {
   deputy     Boolean?
   parliament Boolean?
   elected    Boolean?
-  role       Role?
   lists      CandidatesOnList[]
 
   @@unique([initials, surname, locality])
@@ -97,11 +96,4 @@ enum Gender {
   MALE
   FEMALE
   OTHER
-}
-
-enum Role {
-  GEDEPUTEERDE
-  STATENLID
-  KAMERLID
-  MINISTER
 }
