@@ -75,6 +75,7 @@ model Candidate {
   incumbent  Boolean?
   deputy     Boolean?
   parliament Boolean?
+  senate     Boolean?
   elected    Boolean?
   lists      CandidatesOnList[]
 
