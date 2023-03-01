@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from '~/components/Button.svelte';
+	export let name: string;
 </script>
 
 <div class="flex h-full w-full flex-col justify-between bg-white">
@@ -15,8 +15,10 @@
 		</h1>
 		<h1 class="text-5xl font-normal text-gray-700">Vind de kandidaat die écht bij jou past!</h1>
 		<div class="mt-10 flex justify-start">
-			<div class="flex items-center rounded-xl bg-indigo-100 px-7 py-4.5 text-[2.5rem] font-semibold text-indigo-900/90">
-				Zoek in jouw provincie
+			<div
+				class="py-4.5 flex items-center rounded-xl bg-indigo-100 px-7 text-[2.5rem] font-semibold text-indigo-900/90"
+			>
+				Zoek in {name}
 			</div>
 		</div>
 	</div>

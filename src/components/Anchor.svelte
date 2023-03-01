@@ -17,7 +17,7 @@
 	{...$$restProps}
 	{href}
 >
-	<Arrow class="{icon} mt-[3px] inline" />
+	<Arrow class="{icon} mt-[3px] inline" aria-hidden={true} />
 	<slot>
 		<p>Lees meer op <span class="whitespace-nowrap">{getDomain(href)}</span></p>
 	</slot>

@@ -12,7 +12,7 @@
 <svelte:element this={details} class="border-b-2 border-gray-100 first:border-t-2">
 	<svelte:element
 		this={summary}
-		class="group grid grid-cols-[3fr_5fr_2rem] py-4 text-lg"
+		class="group grid grid-cols-[5fr_8fr_2.5rem] py-4 text-lg"
 		class:cursor-pointer={openable}
 	>
 		<div class="col-start-1 col-end-3 sm:col-end-2" class:max-sm:col-end-4={!openable}>
@@ -35,7 +35,7 @@
 		{/if}
 	</svelte:element>
 	{#if openable}
-		<div class="-mt-2 mb-4 leading-5 text-gray-700">
+		<div class="mb-4 leading-5 text-gray-700">
 			<slot name="details" />
 		</div>
 	{/if}

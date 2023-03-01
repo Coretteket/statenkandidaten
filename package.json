@@ -14,12 +14,12 @@
 	},
 	"dependencies": {
 		"@fontsource/inter": "^4.5.15",
-		"@prisma/client": "^4.10.1",
+		"@prisma/client": "^4.11.0",
 		"@resvg/resvg-js": "^2.4.1",
 		"@sveltejs/adapter-vercel": "2.1.1",
-		"@sveltejs/kit": "^1.8.3",
+		"@sveltejs/kit": "^1.9.2",
 		"@tailwindcss/forms": "^0.5.3",
-		"@vercel/analytics": "^0.1.10",
+		"@vercel/analytics": "^0.1.11",
 		"@vercel/edge-config": "^0.1.1",
 		"autoprefixer": "^10.4.13",
 		"fuse.js": "^6.6.2",
@@ -27,7 +27,7 @@
 		"prettier": "^2.8.4",
 		"prettier-plugin-svelte": "^2.9.0",
 		"prettier-plugin-tailwindcss": "^0.2.3",
-		"prisma": "^4.10.1",
+		"prisma": "^4.11.0",
 		"satori": "^0.4.0",
 		"satori-html": "^0.3.2",
 		"svelte": "^3.55.1",
@@ -37,7 +37,7 @@
 		"vite": "^4.1.4"
 	},
 	"devDependencies": {
-		"@iconify-json/mdi": "^1.1.47",
+		"@iconify-json/mdi": "^1.1.48",
 		"@total-typescript/ts-reset": "^0.3.7"
 	}
 }

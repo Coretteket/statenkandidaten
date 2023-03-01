@@ -2,6 +2,7 @@ import { browser } from '$app/environment';
 import { goto } from '$app/navigation';
 import { page } from '$app/stores';
 import { get, writable, type Updater } from 'svelte/store';
+import type { FilterData } from '~/types/stores';
 import type { Entries, Prettify } from '~/types/utils';
 
 const constructOption =
@@ -16,6 +17,7 @@ const queryOptions = {
 	string: constructOption('string' as const)<string>(),
 	number: constructOption('number' as const)<number>(),
 	list: constructOption('list' as const)<string[]>(),
+	boolean: constructOption('boolean' as const)<boolean>(),
 };
 
 export const q = queryOptions;
@@ -43,12 +45,15 @@ export const createQueryStore = <T extends Input>(input: T) => {
 		const values = Object.fromEntries(
 			entries.map((entry) => {
 				if (entry[1].type === 'string') {
-					return [entry[0], search.get(entry[0]) ?? entry[1].value];
+					return [entry[0], search.get(entry[0])?.replace(/\+/g, ' ') ?? entry[1].value];
 				} else if (entry[1].type === 'number') {
 					return [entry[0], Number(search.get(entry[0]) ?? entry[1].value)];
 				} else if (entry[1].type === 'list') {
 					const list = search.getAll(entry[0]);
 					return [entry[0], Object.fromEntries(list.map((item) => [item, true])) ?? entry[1].value];
+				} else if (entry[1].type === 'boolean') {
+					const val = search.get(entry[0]);
+					return [entry[0], val ? val === 'true' : null ?? entry[1].value];
 				}
 			}) as Entries<Stored>,
 		) as Stored;
@@ -66,6 +71,8 @@ export const createQueryStore = <T extends Input>(input: T) => {
 						Object.entries(entry[1]).forEach(([k, v]) => {
 							if (v) search.append(entry[0], k);
 						});
+					} else if (typeof entry[1] === 'boolean') {
+						search.set(entry[0], entry[1].toString());
 					}
 				}
 			});
@@ -73,8 +80,13 @@ export const createQueryStore = <T extends Input>(input: T) => {
 		};
 	});
 
-	const reset = (key: keyof Stored) => {
-		setter({ ...get({ subscribe }), [key]: input[key].value });
+	const reset = (key?: keyof Stored) => {
+		if (!key) {
+			if (browser) window.dispatchEvent(new Event('statenkandidaten:reset'));
+			return setter(
+				Object.fromEntries(entries.map((entry) => [entry[0], entry[1].value])) as Stored,
+			);
+		} else setter({ ...get({ subscribe }), [key]: input[key].value });
 	};
 
 	const sub = (...props: Parameters<typeof subscribe>) => {
@@ -95,6 +107,21 @@ export const createQueryStore = <T extends Input>(input: T) => {
 			return setter(newValue);
 		},
 	};
+};
+
+export const selected = (input: string | number | boolean | Record<string, boolean> | null) => {
+	if (!input) return false;
+	if (typeof input === 'number') return true;
+	if (typeof input === 'string') return input.length > 0;
+	return (
+		Object.entries(input)
+			.filter(([_, v]) => v)
+			.map(([k]) => k).length > 0
+	);
+};
+
+export const active = (input: FilterData) => {
+	return Object.entries(input).filter(([k, v]) => selected(v)).length;
 };
 
 export type Input = Record<string, InputOption>;

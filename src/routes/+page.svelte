@@ -4,9 +4,6 @@
 	import Button from '~/components/Button.svelte';
 	import Card from '~/components/Card.svelte';
 	import Map from '~/components/Map.svelte';
-	import SEO from '~/components/SEO.svelte';
-
-	import { createTitle } from '~/lib/meta';
 
 	export let data: import('./$types').PageServerData;
 
@@ -31,7 +28,7 @@
 	</p>
 	<div class="mt-2 flex flex-wrap gap-4">
 		<Button href="/#provincies">Zoek in mijn provincie</Button>
-		<Button href="/#veelgestelde-vragen" type={3}>Meer informatie</Button>
+		<Button href="/over" type={3}>Meer informatie</Button>
 	</div>
 </Card>
 
@@ -48,7 +45,7 @@
 			</b>
 		</p>
 
-		<hr class="my-2" />
+		<hr class="my-2" aria-hidden={true} />
 
 		<form method="post" action="/provincie?/navigate">
 			<select
@@ -70,9 +67,7 @@
 	</Card>
 </div>
 
-<Card id="veelgestelde-vragen">
-	<h2 class="text-2xl font-semibold text-gray-900">Veelgestelde vragen</h2>
-
+<Card title="Veelgestelde vragen" id="veelgestelde-vragen">
 	<div class="my-4 grid gap-12 text-gray-800 md:grid-cols-2">
 		<div class="flex flex-col gap-3">
 			<b class="text-lg font-medium">Waarom moet ik stemmen?</b>
@@ -96,18 +91,21 @@
 			</div>
 		</div>
 		<div class="flex flex-col gap-3">
-			<b class="text-lg font-medium">Hoe zijn de kandidaten verzameld?</b>
+			<b class="text-lg font-medium">Waarom Statenkandidaten.nl?</b>
 			<p>
 				Elke partij heeft op meestal op hun eigen website de namen van hun kandidaten gepubliceerd,
 				maar als je op zoek ben naar iemand die bij jou past, moet je zelf veel speuren. Daarom zijn
 				ze hier allemaal verzameld, op basis van informatie die partijen hebben gegeven aan de
-				Kiesraad. Deze website is onafhankelijk ontwikkeld door een enthousiaste student.
+				Kiesraad.
 			</p>
 
-			<Anchor
-				href="https://www.kiesraad.nl/actueel/nieuws/2023/02/14/kandidatenlijsten-provinciale-statenverkiezingen-definitief"
-			/>
+			<div class="space-y-2">
+				<Anchor href="/over" newtab={false}>Lees meer over Statenkandidaten</Anchor>
+				<Anchor
+					href="https://www.kiesraad.nl/actueel/nieuws/2023/02/14/kandidatenlijsten-provinciale-statenverkiezingen-definitief"
+				/>
+			</div>
 		</div>
 	</div>
-	<Button type={3} href="/veelgestelde-vragen">Meer vragen?</Button>
+	<Button type={1} href="/over">Meer vragen?</Button>
 </Card>

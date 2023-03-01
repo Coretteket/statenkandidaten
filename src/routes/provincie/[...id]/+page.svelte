@@ -1,66 +1,63 @@
 <script lang="ts">
-	import { Alert, City, Party, Sort, Filter, Close, FaceMan, FaceWoman } from '~/components/icons';
+	import {
+		City,
+		Party,
+		FaceMan,
+		FaceWoman,
+		Incumbent,
+		Chevron,
+		SortAsc,
+		SortDesc,
+	} from '~/components/icons';
 
 	import Card from '~/components/Card.svelte';
-	import MultiSelect from '~/components/MultiSelect.svelte';
 	import Button from '~/components/Button.svelte';
 	import Tag from '~/components/Tag.svelte';
-	import SEO from '~/components/SEO.svelte';
+	import Anchor from '~/components/Anchor.svelte';
 
-	import { formatPosition, getGender, getListName, slugify } from '~/lib/candidate';
-	import { arrayUniqueByKey } from '~/lib/utils';
-	import { createFilter } from '~/lib/stores';
+	import { formatPosition, getPosition } from '~/lib/candidate';
+	import { capitalize, debounce } from '~/lib/utils';
+	import { createFilter, getConstituency, candidates, getFilteredCandidates } from '~/lib/stores';
+	import { selected } from '~/lib/search-store';
 
+	import { PUBLIC_SESSION_KEY } from '$env/static/public';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
+
+	import Fuse from 'fuse.js';
+	import { onMount } from 'svelte';
+	import Filters from '~/components/Filters.svelte';
 
 	export let data: import('./$types').PageServerData;
 
 	const filters = createFilter();
+	const selectedConstituency = getConstituency();
 
 	// Save filter state to session storage for back button on candidate pages.
 	$: if (browser) {
-		localStorage.setItem('province:filters', $page.url.pathname + $page.url.search);
+		sessionStorage.setItem(PUBLIC_SESSION_KEY, $page.url.pathname + $page.url.search);
 	}
 
-	$: selectedConstituency = data.municipalities.find(
-		(m) => m.id === $filters.stemlocatie,
-	)?.constituencyId;
+	$: fuse = new Fuse(data.candidates, { keys: ['fullname'], threshold: 0.5 });
 
-	const listOf = (input: Record<string, boolean>) =>
-		Object.entries(input)
-			.filter(([_, v]) => v)
-			.map(([k]) => k);
+	$: $candidates = selected($filters.naam)
+		? fuse.search($filters.naam).map((r) => r.item)
+		: data.candidates;
 
-	$: candidates = data.candidates
-		.filter((c) => {
-			const kriFilter =
-				!$filters.stemlocatie ||
-				c.lists
-					.map(
-						(l) => data.parties.flatMap((p) => p.lists).find((p) => p.id === l.id)!.constituencyId,
-					)
-					.some(
-						(c) =>
-							c === data.municipalities.find((m) => m.id === $filters.stemlocatie)!.constituencyId,
-					);
-			const munFilter =
-				listOf($filters.gemeente).length > 0 ? $filters.gemeente[slugify(c.locality ?? '')] : true;
-			const partyFiler =
-				listOf($filters.partij).length > 0
-					? c.lists.some((l) =>
-							data.parties
-								.filter((p) => p.lists.some((pl) => pl.id === l.id))
-								.some((p) => $filters.partij[p.id ?? '']),
-					  )
-					: true;
-			return kriFilter && munFilter && partyFiler;
+	$: filteredCandidates = getFilteredCandidates({});
+
+	$: shownCandidates = $filteredCandidates
+		.sort((a, b) => {
+			if ($filters.sorteer === 'naam') {
+				if ($filters.richting === 'oplopend') return a.surname.localeCompare(b.surname);
+				else return b.surname.localeCompare(a.surname);
+			} else if ($filters.sorteer === 'positie') {
+				const getPos = (c: typeof a) => getPosition(c.lists, $selectedConstituency?.id);
+				if ($filters.richting === 'oplopend') return getPos(a) - getPos(b);
+				else return getPos(b) - getPos(a);
+			} else return 0;
 		})
 		.slice(($filters.pagina - 1) * $filters.aantal, $filters.pagina * $filters.aantal);
-
-	let filterShown = $page.url.searchParams.get('filter') === 'true';
-	$: filterShownStyle = filterShown ? '<style>html{overflow-y:hidden;}</style>' : '';
-	const toggleFilterShown = () => (filterShown = !filterShown);
 
 	const mergeURL = (key: string, val: string) => {
 		const url = new URL($page.url.href);
@@ -68,201 +65,170 @@
 		return url.toString();
 	};
 
-	const tf = Intl.DateTimeFormat('nl', {
-		timeStyle: 'medium',
-		dateStyle: 'long',
-		timeZone: 'Europe/Amsterdam',
-	});
-	$: lastUpdate = tf.format(data.lastUpdate);
-
 	const changePage = async (num: number) => {
 		await filters.update((f) => ({ ...f, pagina: f.pagina + num }));
-		document.getElementById('candidates')!.scrollIntoView({ behavior: 'smooth' });
+		document.documentElement.scrollIntoView({ behavior: 'smooth' });
 	};
 
-	$: localities = arrayUniqueByKey(
-		data.candidates
-			.flatMap((c) => ({ id: slugify(c.locality), name: c.locality }))
-			.sort((a, b) => a.id.localeCompare(b.id, 'nl')),
-		'id',
-	);
+	$: maxPages = Math.max(Math.ceil($filteredCandidates.length / $filters.aantal), 1);
+
+	const setBound = (pagina: number) => {
+		if (pagina < 1) filters.update((f) => ({ ...f, pagina: 1 }));
+		else if (pagina > maxPages) filters.update((f) => ({ ...f, pagina: maxPages }));
+	};
+
+	$: if (browser) setBound($filters.pagina);
+	onMount(() => setBound($filters.pagina));
+
+	const sortToggle = () =>
+		filters.update((f) => ({
+			...f,
+			richting: f.richting === 'aflopend' ? 'oplopend' : 'aflopend',
+			pagina: 1,
+		}));
 </script>
 
 <div class="grid gap-6 lg:grid-cols-content-sidebar">
 	<div class="grid gap-6">
-		<Card class="!py-12">
+		<Card class="!py-12" id="main">
 			<h1 class="font-gray-900 text-[1.7rem] font-bold leading-[1.25]">
 				Kandidaten in {data.province.name.replace('-', '\u2011')}
 			</h1>
 			<p class="text-lg text-gray-800">
-				In {data.province.name} worden er deze verkiezingen
+				In {data.province.name} worden deze verkiezingen
 				<span class="font-medium">{data.province.seats} zetels</span>
-				verdeeld. Hieronder vind je de
-				<span class="font-medium">{data.candidates.length} mensen</span>
+				verdeeld. Op deze pagina vind je de
+				<span class="font-medium">{data.candidates.length} kandidaten</span>
 				waaruit je kan kiezen, verdeeld over
 				<span class="font-medium">{data.parties.length} partijen</span>.
+        Gebruik filters om specifieke kandidaten te vinden.
 			</p>
+			<Anchor href={data.province.website} />
 		</Card>
 
-		<Card class="!flex-row flex-wrap lg:hidden">
-			<Button on:click={toggleFilterShown} fallback={mergeURL('filter', 'true')}>
-				<Filter /> Filter kandidaten
-			</Button>
-			<Button type={3}>
-				<Sort /> Sorteren
-			</Button>
-		</Card>
-
-		<Card class="gap-4 lg:-mb-6 lg:min-h-[48rem]" id="candidates">
-			{#each candidates as candidate (candidate.id)}
-				{@const href = `/kandidaat/${candidate.id}`}
-
-				<div class="space-y-2">
-					<a {href} class="text-xl">
-						<span class="mr-1 text-gray-800"
-							>{formatPosition(candidate.lists, selectedConstituency)}.</span
+		<Card id="candidates">
+			<div
+				class="js-only flex flex-wrap items-center justify-center gap-y-4 gap-x-6 text-gray-900 sm:justify-between lg:-mt-2 "
+			>
+				<span class="text-lg font-medium max-sm:hidden">
+					{$filteredCandidates.length}
+					{#if $filteredCandidates.length === 1}resultaat{:else}resultaten{/if}
+				</span>
+				<div class="flex flex-wrap items-center gap-y-1 gap-x-3">
+					<span class="text-gray-600">Sorteer op</span>
+					<div class="flex items-center gap-2 ">
+						<select
+							name="sorteer"
+							class="form-select cursor-pointer rounded-md border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+							bind:value={$filters.sorteer}
+							on:change={() => filters.reset('pagina')}
+							title="Sorteer op..."
 						>
-						<span class="font-semibold">{candidate.fullname}</span>
-					</a>
-
-					<div class="relative h-8 overflow-fade-right">
-						<div class="absolute inset-0 flex gap-2 overflow-x-scroll pr-3 scrollbar-hidden">
-							<Tag icon={Party} content={getListName(candidate.lists[0], data.parties)} {href} />
-							<Tag icon={City} content={candidate.locality} {href} />
-							{#if candidate.gender}
-								{@const GenderIcon = candidate.gender === 'FEMALE' ? FaceWoman : FaceMan}
-								<Tag icon={GenderIcon} content={getGender(candidate.gender)} {href} />
+							<option value="relevantie">Relevantie</option>
+							<option value="naam">Achternaam</option>
+							<option value="positie">Positie</option>
+						</select>
+						<button
+							class="flex aspect-square h-10 cursor-pointer items-center justify-center rounded-md border border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 disabled:cursor-default disabled:opacity-30"
+							on:click={sortToggle}
+							disabled={$filters.sorteer === 'relevantie'}
+							title={$filters.richting === 'oplopend' ? 'Sorteer aflopend' : 'Sorteer oplopend'}
+						>
+							{#if $filters.richting === 'aflopend' && $filters.sorteer !== 'relevantie'}
+								<SortDesc class="h-5 w-5" />
+							{:else}
+								<SortAsc class="h-5 w-5" />
 							{/if}
-						</div>
+						</button>
 					</div>
-				</div>
-				<hr class="my-1 border-gray-200 last-of-type:hidden" />
-			{/each}
-		</Card>
-		<Card>
-			<Button
-				on:click={() => changePage(-1)}
-				fallback="{mergeURL('pagina', (($filters.pagina ?? 0) + 1).toString())}#candidates"
-			>
-				Prev
-			</Button>
-			<Button
-				on:click={() => changePage(1)}
-				fallback="{mergeURL('pagina', (($filters.pagina ?? 0) + 1).toString())}#candidates"
-			>
-				Next
-			</Button>
-		</Card>
-	</div>
-
-	<div
-		class="flex flex-col justify-between transition-[left,right] duration-200 max-lg:fixed max-lg:top-0 max-lg:left-full max-lg:-right-full max-lg:z-10 max-lg:order-last max-lg:h-[100%] max-lg:bg-white sm:max-lg:p-8 lg:relative lg:row-span-2 lg:h-0 lg:min-h-full "
-		class:!left-0={filterShown}
-		class:!right-0={filterShown}
-	>
-		<Card
-			class="overflow-scroll max-lg:!rounded-none max-lg:overflow-fade-bottom lg:top-6 lg:[&::-webkit-scrollbar]:hidden"
-		>
-			<div class="flex items-center justify-between">
-				<h2 class="text-xl font-bold text-gray-800">Doorzoek kandidaten</h2>
-				<button on:click={toggleFilterShown} class="js-only lg:hidden">
-					<Close class="text-gray-800" />
-				</button>
-				<div class="lg:hidden">
-					<a href={mergeURL('filter', 'false')} class="no-js">
-						<Close class="text-gray-800" />
-					</a>
 				</div>
 			</div>
 
-			<form method="GET" id="filter-form">
-				{#if data.province.constituencies.length > 1}
-					<details open class="border-b-2 border-gray-100 py-3">
-						<summary class="flex items-center justify-between font-medium">
-							<h2>Stemlocatie</h2>
-							{#if $filters.stemlocatie}
-								<span class="flex items-center gap-1 text-sm text-indigo-600">
-									{data.municipalities.find((c) => c.id === $filters.stemlocatie)?.name}
-								</span>
-							{:else}
-								<span
-									class=" flex items-center gap-1 rounded bg-orange-200 py-1 px-2 text-xs font-semibold text-orange-800"
-								>
-									<Alert class="h-4 w-4" /> Belangrijk
-								</span>
-							{/if}
-						</summary>
-						<p class="my-3 text-gray-700">
-							Kies de gemeente waar je woont om kandidaten in jouw kieskring te zien. Dan weet je
-							zeker dat ze op je stembiljet staan.
+			<hr class="my-1 border-gray-200" aria-hidden={true} />
+
+			<ul class="grid gap-4">
+				{#each shownCandidates as candidate, i (candidate.id)}
+					{@const href = `/kandidaat/${candidate.id}`}
+
+					<li class="grid gap-2">
+						<a {href} class="text-xl">
+							<span class="mr-1 text-gray-800">
+								{formatPosition(candidate.lists, $selectedConstituency?.id)}.
+							</span>
+							<span class="font-semibold">{candidate.fullname}</span>
+						</a>
+
+						<div class="relative h-8 overflow-fade-right">
+							<div class="absolute inset-0 flex gap-2 overflow-x-scroll pr-3 scrollbar-hidden">
+								<Tag icon={Party} content={candidate.parties[0].name} {href} />
+								<Tag icon={City} content={candidate.locality} {href} />
+								{#if candidate.gender !== 'onbekend'}
+									{@const GenderIcon = candidate.gender === 'vrouw' ? FaceWoman : FaceMan}
+									<Tag icon={GenderIcon} content={capitalize(candidate.gender)} {href} />
+								{/if}
+								{#if candidate.roles.length > 0}
+									<Tag icon={Incumbent} content={capitalize(candidate.roles[0])} {href} />
+								{/if}
+							</div>
+						</div>
+
+						<hr class="my-1 mt-4 border-gray-200" aria-hidden={true} />
+					</li>
+				{:else}
+					<li class="my-2 text-lg text-gray-800">
+						<b class="font-semibold">Geen kandidaten gevonden</b>
+						<p class="my-2 text-gray-700 leading-snug">
+							Voor deze zoekopdracht zijn geen kandidaten gevonden. Probeer filters te veranderen,
+							<span class="max-lg:hidden">in het menu rechts van deze lijst.</span>
+							<span class="lg:hidden">door op de paarse knop onderin het scherm te klikken.</span>
+							<span class="js-only"
+								>Of <button
+									on:click={() => filters.reset()}
+									class="text-indigo-600 hover:underline font-medium">verwijder alle filters</button
+								>.</span
+							>
 						</p>
-						<select
-							name="stemlocatie"
-							class="w-lg form-select my-1 w-full cursor-pointer rounded-md border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-							bind:value={$filters.stemlocatie}
-						>
-							<option value="" disabled hidden />
-							{#each data.municipalities as municipality}
-								<option value={municipality.id}>
-									{municipality.name}
-								</option>
-							{/each}
-						</select>
-					</details>
-				{/if}
+						<hr class="my-1 mt-8 border-gray-200" aria-hidden={true} />
+					</li>
+				{/each}
+			</ul>
 
-				<MultiSelect
-					name="partij"
-					options={data.parties}
-					keys={['name', 'alias']}
-					let:selected
-					{filters}
-					open
+			<div class="mt-4 flex justify-between gap-6">
+				<Button
+					type={1}
+					class="!aspect-square !w-12 !p-2"
+					on:click={() => changePage(-1)}
+					fallback={mergeURL('pagina', (($filters.pagina ?? 0) - 1).toString())}
+					disabled={$filters.pagina === 1}
+					title="Vorige pagina"
 				>
-					<summary class="flex items-center justify-between font-medium">
-						<h2>Partij</h2>
-						<span class=" flex items-center gap-1 text-sm text-indigo-600">
-							{#if selected.length > 0}{selected.length} geselecteerd{/if}
-						</span>
-					</summary>
-
-					<p class="my-3 text-gray-700">Kies partijen om alleen kandidaten te zien op die lijst.</p>
-				</MultiSelect>
-
-				<MultiSelect
-					name="gemeente"
-					options={localities}
-					keys={['name']}
-					let:selected
-					{filters}
-					open
-				>
-					<summary class="flex items-center justify-between font-medium">
-						<h2>Woonplaats</h2>
-						<span class=" flex items-center gap-1 text-sm text-indigo-600">
-							{#if selected.length > 0}{selected.length} geselecteerd{/if}
-						</span>
-					</summary>
-
-					<p class="my-3 text-gray-700">
-						Kies gemeentes om alleen kandidaten te zien die daar wonen.
-					</p>
-				</MultiSelect>
-
-				<div class="mt-4 max-lg:!hidden">
-					<Button class="no-js !w-full">Bekijk resultaten</Button>
+					<Chevron class="h-8 w-8 rotate-180" aria-hidden={true} />
+				</Button>
+				<div class="flex items-center gap-3 font-medium text-gray-700">
+					<span class="max-sm:hidden">Pagina</span>
+					<input
+						type="number"
+						class="form-input w-10 rounded-md border-gray-300 !px-0 text-center focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+						bind:value={$filters.pagina}
+						aria-label="Paginanummer"
+						min={1}
+						max={maxPages}
+					/>
+					van {maxPages}
 				</div>
-			</form>
+				<Button
+					type={1}
+					class="!aspect-square !w-12 !p-2"
+					on:click={() => changePage(1)}
+					fallback={mergeURL('pagina', (($filters.pagina ?? 0) + 1).toString())}
+					title="Volgende pagina"
+					disabled={$filters.pagina === maxPages}
+				>
+					<Chevron class="h-8 w-8 " aria-hidden={true} />
+				</Button>
+			</div>
 		</Card>
-
-		<div class="flex-shrink-0 flex-grow-0 p-8 pt-4 lg:hidden">
-			<Button on:click={toggleFilterShown} form="filter-form">
-				<span>Bekijk <span class="js-only">{candidates.length} </span>resultaten</span>
-			</Button>
-		</div>
 	</div>
-</div>
 
-<footer class="text-gray-500">
-	Laatst opgehaald op {lastUpdate}.
-</footer>
+	<Filters {data} results={$filteredCandidates.length} />
+</div>

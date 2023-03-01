@@ -5,7 +5,7 @@
 @layer base {
 	:root {
 		--base-font: 'Inter';
-		@apply scroll-p-8 overflow-x-hidden bg-gray-100;
+		@apply scroll-p-8 overflow-x-hidden overflow-y-scroll bg-gray-100;
 	}
 
 	* {
@@ -25,5 +25,24 @@
 		background: transparent;
 		-webkit-appearance: none;
 		display: none;
+	}
+
+	details > summary {
+		list-style: none;
+	}
+
+	details > summary::marker,
+	details > summary::-webkit-details-marker {
+		display: none;
+	}
+
+	input[type='number']::-webkit-outer-spin-button,
+	input[type='number']::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	input[type='number'] {
+		-moz-appearance: textfield;
 	}
 }

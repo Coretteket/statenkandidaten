@@ -16,7 +16,7 @@ export const defaultMeta = (url: URL): Meta => ({
 	title: 'Statenkandidaten',
 	description:
 		'Op 15 maart mogen we weer stemmen, maar op wie eigenlijk? Op Statenkandidaten.nl vind jij de kandidaat die het beste bij jou past.',
-	image: `/api/og/general.png`,
+	image: `/api/og/provincie/general.png`,
 	'image:width': '1200',
 	'image:height': '630',
 });

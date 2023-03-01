@@ -20,7 +20,7 @@ export const omit: Omit = (obj, ...keys) => {
 
 export const switcher = <
 	T extends string | number | symbol,
-	U extends { [t in T]: any } & { default?: any },
+	U extends Partial<{ [t in T]: any }> & { default?: any },
 >(
 	value: T | null | undefined,
 	cases: U,
@@ -39,6 +39,8 @@ export const debounce = <T extends Function>(cb: T, wait = 200) => {
 
 export const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+export const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
 export const arrayUniqueByKey = <T extends {}>(arr: T[], key: keyof T) =>
 	arr.filter((v) => v).filter((v, i, a) => a.findIndex((t) => t[key] === v[key]) === i);
 
@@ -47,3 +49,11 @@ export const arrayUnique = <T>(arr: T[]) =>
 
 export const shorten = (str: string, max = 20) =>
 	str.length > max ? str.slice(0, max - 3) + '…' : str;
+
+export const easterEgg = () => {
+	console.log(
+		'%cStatenkandidaten',
+		'background:#312e81;color:#ebebeb;font-size:2.5em;font-family:Inter;font-weight:800;padding:10px 20px;border-radius:10px',
+	);
+	console.log('https://github.com/coretteket/statenkandidaten');
+};

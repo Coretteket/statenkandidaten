@@ -18,10 +18,10 @@ const getCandidate = (id: string) =>
 const getParties = () => prisma.party.findMany({ include: { lists: true } });
 
 export const GET: RequestHandler = async ({ params }) => {
-	if (!params.id) throw error(404, 'Candidate not found');
+	if (!params.id) throw error(404, { message: 'Kandidaat niet gevonden' });
 
 	const [candidate, parties] = await Promise.all([getCandidate(params.id), getParties()]);
-	if (!candidate) throw error(404, 'Candidate not found');
+	if (!candidate) throw error(404, { message: 'Kandidaat niet gevonden' });
 
 	const name = shorten(getFullName(candidate), 22);
 
@@ -31,8 +31,8 @@ export const GET: RequestHandler = async ({ params }) => {
 
 	return ImageResponse(Image, {
 		fonts: { family: 'Inter', weights: [400, 600, 700, 800] },
-		props: { name, party, provinces, position },
 		headers: { 'cache-control': await getCache() },
+		props: { name, party, provinces, position },
 	});
 };
 

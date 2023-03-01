@@ -8,7 +8,9 @@ import type { Meta } from './lib/meta';
 
 declare global {
 	namespace App {
-		// interface Error {}
+		interface Error {
+			message: string;
+		}
 		// interface Locals {}
 		interface PageData {
 			meta: Partial<Meta>;

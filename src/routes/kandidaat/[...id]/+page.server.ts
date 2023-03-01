@@ -1,5 +1,5 @@
 import type { PageServerLoad } from './$types';
-import { fail } from '@sveltejs/kit';
+import { error } from '@sveltejs/kit';
 import { getFullName } from '~/lib/candidate';
 import { getCache, prisma } from '~/lib/db.server';
 import { createMeta, createTitle } from '~/lib/meta';
@@ -15,12 +15,25 @@ const getFullCandidate = async (id: string) => {
 			surname: true,
 			gender: true,
 			locality: true,
-			lists: { select: { listId: true } },
+			incumbent: true,
+			parliament: true,
+			senate: true,
+			deputy: true,
+			lists: { select: { position: true, listId: true } },
 		},
 	});
 
+	const roles = Object.entries({
+		statenlid: candidate?.incumbent,
+		gedeputeerde: candidate?.deputy,
+		kamerlid: candidate?.parliament,
+		senator: candidate?.senate,
+	})
+		.map(([k, v]) => (v ? k : null))
+		.filter(Boolean) as ('statenlid' | 'gedeputeerde' | 'kamerlid')[];
+
 	return !!candidate
-		? { ...candidate, lists: candidate?.lists.map(({ listId }) => listId) }
+		? { ...candidate, roles, lists: candidate?.lists.map(({ listId }) => listId) }
 		: undefined;
 };
 
@@ -100,15 +113,18 @@ const getRelevantPositions = (
 
 		return samePositions && allConstituencies
 			? { name: transformed[0].province, number: positions[0].number }
-			: transformed.map(({ constituency, number }) => ({ name: constituency, number }));
+			: cons.map((c) => ({
+					name: c,
+					number: transformed.find((l) => l.constituency === c)?.number,
+			  }));
 	});
 
-	return transformedPositions.sort((a, b) => a.number - b.number);
+	return transformedPositions.sort((a, b) => (a.number ?? 1e3) - (b.number ?? 1e3));
 };
 
-export const load: PageServerLoad = async ({ params, setHeaders }) => {
+export const load = (async ({ params, setHeaders }) => {
 	const candidate = await getFullCandidate(params.id);
-	if (!candidate) throw fail(404, { candidate: null });
+	if (!candidate) throw error(404, { message: 'Kandidaat niet gevonden' });
 
 	const [lists, positions] = await Promise.all([
 		getLists(candidate.id),
@@ -130,4 +146,4 @@ export const load: PageServerLoad = async ({ params, setHeaders }) => {
 	});
 
 	return { meta, candidate, lists, positions };
-};
+}) satisfies PageServerLoad;

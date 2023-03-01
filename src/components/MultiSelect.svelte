@@ -1,73 +1,107 @@
 <script lang="ts">
 	import Fuse from 'fuse.js';
+	import { onMount } from 'svelte';
+	import { slugify } from '~/lib/candidate';
 	import type { InputByType } from '~/lib/search-store';
-	import type { FilterStore, FilterOptions } from '~/lib/stores';
-	import { arrayUniqueByKey } from '~/lib/utils';
+	import { createFilter, getFilteredCandidates } from '~/lib/stores';
+	import type { FilterOptions } from '~/types/stores';
+	import { arrayUniqueByKey, switcher } from '~/lib/utils';
+	import Search from './Search.svelte';
 
 	export let name: InputByType<FilterOptions, 'list'>;
-	export let options: { id: string; name: string; alias?: string | null }[];
-	export let keys: Fuse.FuseOptionKey<(typeof options)[number]>[];
-	export let filters: FilterStore;
-	export let open = false;
+	export let options: { id: string; name: string }[];
+	export let searchable = false;
+	export let show = 6;
 
+	const filters = createFilter();
+	const candidates = getFilteredCandidates({ [name]: true });
+
+	const fuse = searchable ? new Fuse(options, { keys: ['name'], threshold: 1 }) : null;
 	let searchTerm = '';
-	let showAll = true;
 
-	const fuse = new Fuse(options, { keys, includeScore: true });
-
-	const getResults = (searchTerm: string) => {
-		if (searchTerm === '') return options;
-		const search = fuse.search(searchTerm);
-		return search.filter((m) => m.score && m.score < 0.5).map((m) => m.item);
-	};
-
-	$: searchResults = getResults(searchTerm);
 	$: selected = options.filter((o) => $filters[name][o.id]);
+	$: subset = arrayUniqueByKey([...options.slice(0, show), ...selected], 'id');
+	$: defaultOptions = !showAll ? subset : options;
 
-	$: shownOptions = arrayUniqueByKey([...selected, ...searchResults], 'id');
+	$: results = fuse?.search(searchTerm).map(({ item }) => item) ?? [];
+	$: searchOptions = !showAll ? results?.slice(0, show) : results;
+	$: shownOptions = searchable && searchTerm.length > 0 ? searchOptions : defaultOptions;
 
-	let showScrollIndicator = options.length > 10;
+	$: getCount = switcher(name, {
+		partij: (id: string) => $candidates.filter((c) => c.parties.some((p) => p.id === id)).length,
+		geslacht: (id: string) => $candidates.filter((c) => c.gender === id).length,
+		plaats: (id: string) => $candidates.filter((c) => slugify(c.locality) === id).length,
+		functie: (id: string) =>
+			$candidates.filter((c) => (id === 'geen' ? c.roles.length === 0 : c.roles.includes(id)))
+				.length,
+		default: (_: string) => 0,
+	});
+
+	let showAll = true,
+		mounted = false;
+	onMount(() => {
+		showAll = false;
+		mounted = true;
+	});
 </script>
 
-<details {open} class="border-b-2 border-gray-100 py-3">
-	<slot {selected} />
+<div>
+	{#if searchable}
+		<Search bind:value={searchTerm} placeholder="Zoek {name} in lijst..." class="js-only" />
+	{/if}
 
-	<input
-		bind:value={searchTerm}
-		placeholder="Zoek op {name}..."
-		class="js-only form-input mb-2 w-full flex-1 rounded-md border-gray-300 px-4 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-	/>
-
-	<div
-		class="relative -mx-1 max-h-52 overflow-auto px-1 overflow-fade-bottom"
-		on:scroll|once={() => (showScrollIndicator = false)}
-	>
+	<div class:hidden-kids={!mounted} class:mt-4={searchable}>
 		{#each shownOptions as option (option.id)}
-			<label class="my-2.5 flex items-center gap-3 leading-4">
+			<label class="my-2 flex items-start gap-3 leading-4">
 				<input
 					type="checkbox"
-					class="form-checkbox rounded border-gray-300 text-indigo-600 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 focus:ring-offset-0"
+					class="form-checkbox mt-0.5 rounded border-gray-300 text-indigo-600 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200 focus:ring-opacity-50 focus:ring-offset-0"
 					bind:checked={$filters[name][option.id]}
 					on:change={() => filters.reset('pagina')}
 					value={option.id}
 					{name}
 				/>
-				{option.alias ?? option.name}
+				<span class="leading-tight">
+					{option.name}
+					<span class="text-gray-600">
+						({getCount(option.id)})
+					</span>
+				</span>
 			</label>
 		{/each}
-		<!-- <div class="absolute js-only bottom-2 w-fit text-center" class:hidden={!showScrollIndicator}>
-			<span class="rounded bg-indigo-100 py-1 px-2 text-xs font-semibold text-indigo-900">
-				Scroll voor meer opties...
-			</span>
-		</div> -->
 	</div>
 
-	{#if searchResults.length > shownOptions.length}
+	{#if options.length > show}
 		<button
 			on:click|preventDefault={() => (showAll = !showAll)}
-			class="text-underline js-only mt-2 inline-block cursor-pointer font-medium text-indigo-600 hover:underline [input:checked~&]:hidden"
+			class="text-underline js-only mt-1 inline-block cursor-pointer font-medium text-indigo-600 hover:underline"
 		>
-			{#if showAll}Bekijk minder...{:else}Bekijk alle...{/if}
+			Bekijk {#if showAll && mounted}minder{:else}alle{/if}...
 		</button>
 	{/if}
-</details>
+</div>
+
+<!--
+  Styles to assist in hiding all options when Javascript is enabled,
+  but showing all options in cases without Javascript.
+-->
+
+<svelte:head>
+	<noscript>
+		<style>
+			.hidden-kids > * {
+				display: flex !important;
+			}
+		</style>
+	</noscript>
+</svelte:head>
+
+<style>
+	.hidden-kids > * {
+		display: none;
+	}
+
+	.hidden-kids > *:nth-child(-n + 6) {
+		display: flex;
+	}
+</style>
