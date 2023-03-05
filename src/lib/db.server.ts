@@ -1,12 +1,9 @@
 import { dev } from '$app/environment';
-import { PrismaClient as PrismaClientNode } from '@prisma/client';
-import { PrismaClient as PrismaClientEdge } from '@prisma/client/edge';
+import { PrismaClient } from '@prisma/client';
 import { get } from '@vercel/edge-config';
 
-const PrismaClient = import.meta.env.DEV ? PrismaClientNode : PrismaClientEdge;
-
-const globalPrisma = globalThis as typeof globalThis & { prisma?: PrismaClientNode };
-const prisma = globalPrisma.prisma ?? new PrismaClient({ log: ['error', 'warn'] });
+const globalPrisma = globalThis as typeof globalThis & { prisma?: PrismaClient };
+const prisma = globalPrisma.prisma ?? new PrismaClient({ log: ['info', 'error', 'warn'] });
 if (dev) globalPrisma.prisma = prisma;
 
 export const getCache = () => (!dev ? get('cache-control') : Promise.resolve('public'));

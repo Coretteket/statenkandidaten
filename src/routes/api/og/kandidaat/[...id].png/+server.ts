@@ -35,5 +35,3 @@ export const GET: RequestHandler = async ({ params }) => {
 		props: { name, party, provinces, position },
 	});
 };
-
-export const config = { runtime: 'nodejs18.x' } satisfies Config;
