@@ -3,10 +3,11 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider     = "mysql"
+  provider     = "sqlite"
   relationMode = "prisma"
   url          = env("DIRECT_URL")
 }
@@ -69,7 +70,7 @@ model Candidate {
   firstname  String?
   prefix     String?
   surname    String
-  gender     Gender?
+  gender     String?
   locality   String
   incumbent  Boolean?
   deputy     Boolean?
@@ -92,8 +93,3 @@ model CandidatesOnList {
   @@index([listId])
 }
 
-enum Gender {
-  MALE
-  FEMALE
-  OTHER
-}
