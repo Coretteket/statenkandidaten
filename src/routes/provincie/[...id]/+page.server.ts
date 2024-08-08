@@ -139,4 +139,4 @@ export const entries: EntryGenerator = async () => {
 	return provinces.map(({ id }) => ({ id }));
 };
 
-export const prerender = true;
+// export const prerender = true;
