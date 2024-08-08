@@ -18,10 +18,10 @@ const getCandidate = (id: string) =>
 const getParties = () => prisma.party.findMany({ include: { lists: true } });
 
 export const GET: RequestHandler = async ({ params }) => {
-	if (!params.id) throw error(404, { message: 'Kandidaat niet gevonden' });
+	if (!params.id) error(404, { message: 'Kandidaat niet gevonden' });
 
 	const [candidate, parties] = await Promise.all([getCandidate(params.id), getParties()]);
-	if (!candidate) throw error(404, { message: 'Kandidaat niet gevonden' });
+	if (!candidate) error(404, { message: 'Kandidaat niet gevonden' });
 
 	const name = shorten(getFullName(candidate), 22);
 

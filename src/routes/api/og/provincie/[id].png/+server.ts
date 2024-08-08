@@ -6,7 +6,7 @@ import Image from './Image.svelte';
 import { getCache, prisma } from '~/lib/db.server';
 
 export const GET: RequestHandler = async ({ params }) => {
-	if (!params.id) throw error(404, { message: 'Provincie niet gevonden' });
+	if (!params.id) error(404, { message: 'Provincie niet gevonden' });
 
 	const props = { name: 'jouw provincie' };
 
@@ -15,7 +15,7 @@ export const GET: RequestHandler = async ({ params }) => {
 			where: { id: params.id },
 			select: { name: true },
 		});
-		if (!province) throw error(404, { message: 'Provincie niet gevonden' });
+		if (!province) error(404, { message: 'Provincie niet gevonden' });
 		props.name = province.name;
 	}
 

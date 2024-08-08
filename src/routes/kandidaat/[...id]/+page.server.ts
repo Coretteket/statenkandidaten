@@ -124,7 +124,7 @@ const getRelevantPositions = (
 
 export const load = (async ({ params, setHeaders }) => {
 	const candidate = await getFullCandidate(params.id);
-	if (!candidate) throw error(404, { message: 'Kandidaat niet gevonden' });
+	if (!candidate) error(404, { message: 'Kandidaat niet gevonden' });
 
 	const [lists, positions] = await Promise.all([
 		getLists(candidate.id),

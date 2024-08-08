@@ -1,4 +1,4 @@
-import type { PageServerLoad, Actions } from './$types';
+import type { PageServerLoad, Actions, EntryGenerator } from './$types';
 import { error, redirect } from '@sveltejs/kit';
 import { getCache, prisma } from '~/lib/db.server';
 import { getFullName, slugify } from '~/lib/candidate';
@@ -38,7 +38,7 @@ const getCandidates = async (provinceId: string) => {
 			statenlid: c.incumbent,
 			gedeputeerde: c.deputy,
 			kamerlid: c.parliament,
-      senator: c.senate,
+			senator: c.senate,
 		})
 			.map(([k, v]) => (v ? k : null))
 			.filter(Boolean) as ('statenlid' | 'gedeputeerde' | 'kamerlid' | 'senator')[];
@@ -95,7 +95,7 @@ export const load = (async ({ params, setHeaders }) => {
 		where: { id: params.id },
 	});
 
-	if (!province) throw error(404, { message: 'Provincie niet gevonden' });
+	if (!province) error(404, { message: 'Provincie niet gevonden' });
 
 	setHeaders({ 'cache-control': await getCache() });
 
@@ -118,18 +118,25 @@ export const load = (async ({ params, setHeaders }) => {
 	return {
 		meta,
 		province,
-		parties: getParties(params.id),
-		municipalities: getMunicipalities(params.id),
-		candidates,
-		localities,
+		parties: await getParties(params.id),
+		municipalities: await getMunicipalities(params.id),
+		candidates: await candidates,
+		localities: await localities,
 	};
 }) satisfies PageServerLoad;
 
-export const actions: Actions = {
-	navigate: async ({ request }) => {
-		const provinceParam = (await request.formData()).get('provincie');
-		throw provinceParam
-			? redirect(302, `/provincie/${provinceParam}`)
-			: error(404, { message: 'Provincie niet gevonden' });
-	},
+// export const actions: Actions = {
+// 	navigate: async ({ request }) => {
+// 		const provinceParam = (await request.formData()).get('provincie');
+// 		throw provinceParam
+// 			? redirect(302, `/provincie/${provinceParam}`)
+// 			: error(404, { message: 'Provincie niet gevonden' });
+// 	},
+// };
+
+export const entries: EntryGenerator = async () => {
+	const provinces = await prisma.province.findMany({ select: { id: true } });
+	return provinces.map(({ id }) => ({ id }));
 };
+
+export const prerender = true;
