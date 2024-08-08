@@ -19,7 +19,7 @@ importers:
         version: 5.18.0(@libsql/client@0.8.1)
       '@prisma/client':
         specifier: ^5.18.0
-        version: 5.18.0(prisma@4.11.0)
+        version: 5.18.0(prisma@5.18.0)
       '@resvg/resvg-js':
         specifier: ^2.4.1
         version: 2.4.1
@@ -57,8 +57,8 @@ importers:
         specifier: ^0.2.4
         version: 0.2.4(prettier-plugin-svelte@2.10.1(prettier@2.8.4)(svelte@4.2.12))(prettier@2.8.4)
       prisma:
-        specifier: ^4.11.0
-        version: 4.11.0
+        specifier: ^5.18.0
+        version: 5.18.0
       satori:
         specifier: ^0.4.1
         version: 0.4.1
@@ -369,8 +369,17 @@ packages:
   '@prisma/driver-adapter-utils@5.18.0':
     resolution: {integrity: sha512-9WLOLcOOvYcxE4bzIL15XsJm9L5SaOX98FCFDFT6+/nt0p9PcAzAbFTtitF7dLNKnYO5tiuOVHs+3VQIP2LN1w==}
 
-  '@prisma/engines@4.11.0':
-    resolution: {integrity: sha512-0AEBi2HXGV02cf6ASsBPhfsVIbVSDC9nbQed4iiY5eHttW9ZtMxHThuKZE1pnESbr8HRdgmFSa/Kn4OSNYuibg==}
+  '@prisma/engines-version@5.18.0-25.4c784e32044a8a016d99474bd02a3b6123742169':
+    resolution: {integrity: sha512-a/+LpJj8vYU3nmtkg+N3X51ddbt35yYrRe8wqHTJtYQt7l1f8kjIBcCs6sHJvodW/EK5XGvboOiwm47fmNrbgg==}
+
+  '@prisma/engines@5.18.0':
+    resolution: {integrity: sha512-ofmpGLeJ2q2P0wa/XaEgTnX/IsLnvSp/gZts0zjgLNdBhfuj2lowOOPmDcfKljLQUXMvAek3lw5T01kHmCG8rg==}
+
+  '@prisma/fetch-engine@5.18.0':
+    resolution: {integrity: sha512-I/3u0x2n31rGaAuBRx2YK4eB7R/1zCuayo2DGwSpGyrJWsZesrV7QVw7ND0/Suxeo/vLkJ5OwuBqHoCxvTHpOg==}
+
+  '@prisma/get-platform@5.18.0':
+    resolution: {integrity: sha512-Tk+m7+uhqcKDgnMnFN0lRiH7Ewea0OEsZZs9pqXa7i3+7svS3FSCqDBCaM9x5fmhhkufiG0BtunJVDka+46DlA==}
 
   '@resvg/resvg-js-android-arm-eabi@2.4.1':
     resolution: {integrity: sha512-AA6f7hS0FAPpvQMhBCf6f1oD1LdlqNXKCxAAPpKh6tR11kqV0YIB9zOlIYgITM14mq2YooLFl6XIbbvmY+jwUw==}
@@ -1325,9 +1334,9 @@ packages:
     engines: {node: '>=10.13.0'}
     hasBin: true
 
-  prisma@4.11.0:
-    resolution: {integrity: sha512-4zZmBXssPUEiX+GeL0MUq/Yyie4ltiKmGu7jCJFnYMamNrrulTBc+D+QwAQSJ01tyzeGHlD13kOnqPwRipnlNw==}
-    engines: {node: '>=14.17'}
+  prisma@5.18.0:
+    resolution: {integrity: sha512-+TrSIxZsh64OPOmaSgVPH7ALL9dfU0jceYaMJXsNrTkFHO7/3RANi5K2ZiPB1De9+KDxCWn7jvRq8y8pvk+o9g==}
+    engines: {node: '>=16.13'}
     hasBin: true
 
   promise-limit@2.7.0:
@@ -1908,9 +1917,9 @@ snapshots:
       '@prisma/driver-adapter-utils': 5.18.0
       async-mutex: 0.5.0
 
-  '@prisma/client@5.18.0(prisma@4.11.0)':
+  '@prisma/client@5.18.0(prisma@5.18.0)':
     optionalDependencies:
-      prisma: 4.11.0
+      prisma: 5.18.0
 
   '@prisma/debug@5.18.0': {}
 
@@ -1918,7 +1927,24 @@ snapshots:
     dependencies:
       '@prisma/debug': 5.18.0
 
-  '@prisma/engines@4.11.0': {}
+  '@prisma/engines-version@5.18.0-25.4c784e32044a8a016d99474bd02a3b6123742169': {}
+
+  '@prisma/engines@5.18.0':
+    dependencies:
+      '@prisma/debug': 5.18.0
+      '@prisma/engines-version': 5.18.0-25.4c784e32044a8a016d99474bd02a3b6123742169
+      '@prisma/fetch-engine': 5.18.0
+      '@prisma/get-platform': 5.18.0
+
+  '@prisma/fetch-engine@5.18.0':
+    dependencies:
+      '@prisma/debug': 5.18.0
+      '@prisma/engines-version': 5.18.0-25.4c784e32044a8a016d99474bd02a3b6123742169
+      '@prisma/get-platform': 5.18.0
+
+  '@prisma/get-platform@5.18.0':
+    dependencies:
+      '@prisma/debug': 5.18.0
 
   '@resvg/resvg-js-android-arm-eabi@2.4.1':
     optional: true
@@ -2745,9 +2771,9 @@ snapshots:
 
   prettier@2.8.4: {}
 
-  prisma@4.11.0:
+  prisma@5.18.0:
     dependencies:
-      '@prisma/engines': 4.11.0
+      '@prisma/engines': 5.18.0
 
   promise-limit@2.7.0: {}
 
