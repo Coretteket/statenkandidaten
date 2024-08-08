@@ -12,6 +12,6 @@ A project with the mission to inform voters about the people they can actually v
 ## Technology
 - Built with Svelte 4 and SvelteKit 2;
 - Fully written in TypeScript;
+- ~~MySQL~~ SQLite database hosted by ~~PlanetScale~~ Turso ([due to free tier retirement](https://planetscale.com/blog/planetscale-forever#:~:text=Our%20Hobby%20plan%20will%20be%20retired%20on%20April%208th%2C%202024.));
 - Typesafe ORM with Prisma;
-- SQLite database hosted by [~~PlanetScale~~](https://planetscale.com/blog/planetscale-forever#:~:text=Our%20Hobby%20plan%20will%20be%20retired%20on%20April%208th%2C%202024.) Turso;
 - Styled with TailwindCSS.
